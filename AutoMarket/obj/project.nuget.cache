@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "W972HpK54T0=",
+  "dgSpecHash": "G6zdWN6+sp0=",
   "success": true,
-  "projectFilePath": "C:\\Users\\guisi\\Source\\Repos\\AutoPrice-Repository-\\AutoMarket\\AutoMarket.csproj",
+  "projectFilePath": "C:\\Users\\guisi\\source\\repos\\AutoPrice-Repository-\\AutoMarket\\AutoMarket.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\guisi\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\guisi\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",

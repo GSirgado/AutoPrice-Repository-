@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\guisi\\Source\\Repos\\AutoPrice-Repository-\\AutoMarket\\AutoMarket.csproj": {}
+    "C:\\Users\\guisi\\source\\repos\\AutoPrice-Repository-\\AutoMarket\\AutoMarket.csproj": {}
   },
   "projects": {
-    "C:\\Users\\guisi\\Source\\Repos\\AutoPrice-Repository-\\AutoMarket\\AutoMarket.csproj": {
+    "C:\\Users\\guisi\\source\\repos\\AutoPrice-Repository-\\AutoMarket\\AutoMarket.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\guisi\\Source\\Repos\\AutoPrice-Repository-\\AutoMarket\\AutoMarket.csproj",
+        "projectUniqueName": "C:\\Users\\guisi\\source\\repos\\AutoPrice-Repository-\\AutoMarket\\AutoMarket.csproj",
         "projectName": "AutoMarket",
-        "projectPath": "C:\\Users\\guisi\\Source\\Repos\\AutoPrice-Repository-\\AutoMarket\\AutoMarket.csproj",
+        "projectPath": "C:\\Users\\guisi\\source\\repos\\AutoPrice-Repository-\\AutoMarket\\AutoMarket.csproj",
         "packagesPath": "C:\\Users\\guisi\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\guisi\\Source\\Repos\\AutoPrice-Repository-\\AutoMarket\\obj\\",
+        "outputPath": "C:\\Users\\guisi\\source\\repos\\AutoPrice-Repository-\\AutoMarket\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

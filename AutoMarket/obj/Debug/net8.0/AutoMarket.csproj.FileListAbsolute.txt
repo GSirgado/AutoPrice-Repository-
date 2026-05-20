@@ -140,3 +140,14 @@ C:\Users\guisi\Source\Repos\AutoMarket\obj\Debug\net8.0\ref\AutoMarket.dll
 C:\Users\guisi\Source\Repos\AutoMarket\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\guisi\Source\Repos\AutoMarket\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
 C:\Users\guisi\Source\Repos\AutoMarket\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.csproj.AssemblyReference.cache
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.AssemblyInfoInputs.cache
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.AssemblyInfo.cs
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.csproj.CoreCompileInputs.cache
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.sourcelink.json
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.dll
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\refint\AutoMarket.dll
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.pdb
