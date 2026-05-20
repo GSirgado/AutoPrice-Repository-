@@ -1,0 +1,332 @@
+﻿/* ── BUTTONS ─────────────────────────────────────── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 26px;
+    border-radius: 6px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    border: none;
+}
+
+.btn-gold {
+    background: #e8a020;
+    color: #0a0c10;
+}
+
+    .btn-gold:hover {
+        background: #f5c842;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(255,255,0,0.35);
+    }
+
+.btn-sm {
+    padding: 8px 18px;
+    font-size: 0.82rem;
+}
+
+/* ── HERO ────────────────────────────────────────── */
+.hero {
+    position: relative;
+    min-height: 420px;
+    display: flex;
+    align-items: center;
+    padding: 60px 40px;
+    overflow: hidden;
+    background: linear-gradient(120deg, #0a0c10 40%, #0d1520 100%);
+}
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse 60% 80% at 70% 50%, rgba(255,255,0,0.18) 0%, transparent 70%), radial-gradient(ellipse 40% 60% at 30% 80%, rgba(255,255,0,0.08) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 420px;
+}
+
+    .hero-content h1 {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: clamp(2.4rem, 5vw, 3.4rem);
+        font-weight: 900;
+        line-height: 1.05;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 14px;
+    }
+
+        .hero-content h1 span {
+            color: #0a0c10;
+            text-shadow: 0 0 6px rgba(255, 255, 0, 1), 0 0 14px rgba(255, 200, 0, 0.3);
+        }
+
+    .hero-content p {
+        font-size: 15px;
+        margin-bottom: 28px;
+        max-width: 320px;
+    }
+
+.hero-image {
+    position: absolute;
+    right: 10%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 60%;
+    max-width: 620px;
+    filter: drop-shadow(0 20px 60px rgba(232,160,32,0.22));
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ── PROMO STRIP ─────────────────────────────────── */
+.promo-strip {
+    display: flex;
+    align-items: stretch;
+    background: #3e3d00;
+    border-top: 1px solid #e8a020;
+    box-shadow: inset 0 8px 10px -5px rgba(255,255,0,0.5), /* topo */
+                inset 0 -8px 10px -5px rgba(255,255,0,0.5); /* fundo */
+    border-bottom: 1px solid #e8a020;
+}
+
+.promo-badge {
+    background: #e8a020;
+    padding: 22px 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 180px;
+}
+
+    .promo-badge .badge-label {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: #3a2000;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .promo-badge .badge-title {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: #1a0e00;
+        line-height: 1;
+    }
+
+.promo-info {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    padding: 22px 40px;
+    flex: 1;
+}
+
+.promo-amount {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: #0a0c10;
+    text-shadow: 0 0 6px rgba(255, 255, 0, 1), 0 0 14px rgba(255, 200, 0, 0.3);
+    white-space: nowrap;
+}
+
+/* ── SECTION WRAPPER ─────────────────────────────── */
+.section {
+    padding: 52px 40px;
+}
+
+.section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    color: #0a0c10;
+    text-shadow: 0 0 6px rgba(255, 255, 0, 1), 0 0 14px rgba(255, 200, 0, 0.3);
+}
+
+.section-sub {
+    font-size: 0.85rem;
+    margin-bottom: 36px;
+}
+
+/* ── CATEGORY CARDS ──────────────────────────────── */
+.category-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.cat-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e8a020;
+    box-shadow: 0 0 12px rgba(255, 255, 0, 1);
+    padding: 28px 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color .25s, transform .25s;
+}
+
+    .cat-card:hover {
+        border-color: #ffff00;
+        box-shadow: 0 0 20px rgba(255, 255, 0, 1);
+        transform: translateY(-3px);
+    }
+
+.cat-card-img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    filter: brightness(.85);
+}
+
+.cat-card h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: #0a0c10;
+    text-shadow: 0 0 6px rgba(255, 255, 0, 1), 0 0 14px rgba(255, 200, 0, 0.3);
+}
+
+.cat-card p {
+    font-size: 0.82rem;
+    margin-bottom: 10px;
+}
+
+/* ── VEHICLE GRID ────────────────────────────────── */
+.vehicle-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.vehicle-card {
+    background: var(--bg-card);
+    border: 1px solid #e8a020;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color .25s, transform .25s;
+}
+
+    .vehicle-card:hover {
+        border-color: rgba(255,255,0,0.5);
+        box-shadow: 0px 0px 12px rgba(255,255,0,0.5);
+        transform: translateY(-4px);
+    }
+
+.vehicle-img-wrap {
+    position: relative;
+}
+
+    .vehicle-img-wrap img {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        display: block;
+        filter: brightness(.8);
+    }
+
+.discount-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--accent-red);
+    color: #fff;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 4px;
+    letter-spacing: .5px;
+}
+
+.vehicle-body {
+    padding: 14px 16px 18px;
+}
+
+    .vehicle-body h4 {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 1.05rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+.price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.price-current {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #e8a020;
+}
+
+.price-old {
+    font-size: 0.8rem;
+    text-decoration: line-through;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────── */
+@media (max-width: 900px) {
+    .vehicle-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hero-image {
+        width: 70%;
+        right: -60px;
+        opacity: .35;
+    }
+}
+
+@media (max-width: 600px) {
+    .vehicle-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .category-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .promo-info {
+        flex-direction: column;
+        gap: 12px;
+        padding: 20px 24px;
+    }
+
+    .hero-image {
+        display: none;
+    }
+
+    .hero {
+        padding: 40px 24px;
+    }
+
+    .section {
+        padding: 36px 20px;
+    }
+}

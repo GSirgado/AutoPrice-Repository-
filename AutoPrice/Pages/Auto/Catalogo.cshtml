@@ -1,0 +1,298 @@
+﻿@page
+@model AutoPrice.Pages.CatalogoModel
+@using AutoPrice.ViewModels
+
+@{
+    ViewData["Title"] = "Catálogo de Veículos";
+    var marcas = Model.Veiculos.Select(v => v.Marca).Distinct().OrderBy(m => m).ToList();
+    var cats = Model.Veiculos.Select(v => v.Categoria).Where(c => !string.IsNullOrEmpty(c)).Distinct().OrderBy(c => c).ToList();
+    var anoMin = Model.Veiculos.Any() ? Model.Veiculos.Min(v => v.Ano) : 2018;
+    var anoMax = Model.Veiculos.Any() ? Model.Veiculos.Max(v => v.Ano) : 2025;
+    var precoTeto = Model.Veiculos.Any() ? (int)Model.Veiculos.Max(v => v.Preco) : 150000;
+    var precoStep = 1000;
+}
+
+@section Styles {
+    <style>
+        .vl-header { padding: 40px 40px 0; }
+        .vl-breadcrumb { font-size: .82rem; color: #888; margin-bottom: 12px; }
+        .vl-breadcrumb a { color: #c9a84c; text-decoration: none; }
+        .vl-breadcrumb a:hover { text-decoration: underline; }
+        .vl-breadcrumb span { margin: 0 6px; }
+        .vl-title { font-family: 'Barlow Condensed',sans-serif; font-size: 2.2rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: #fff; }
+        .vl-title span { color: #c9a84c; }
+        .vl-layout { display: grid; grid-template-columns: 280px 1fr; gap: 28px; padding: 32px 40px 60px; }
+        .vl-filters { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 28px; height: fit-content; position: sticky; top: 80px; }
+        .vl-filters-title { font-family: 'Barlow Condensed',sans-serif; font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid #2a2a2a; display: flex; align-items: center; gap: 8px; color: #fff; }
+        .vl-filters-title::before { content: ''; display: inline-block; width: 3px; height: 18px; background: #c9a84c; border-radius: 2px; }
+        .vl-filter-group { margin-bottom: 24px; }
+        .vl-filter-label { font-size: .78rem; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block; }
+        .vl-select { width: 100%; background: #111; border: 1px solid #2a2a2a; border-radius: 6px; color: #fff; font-family: 'Barlow',sans-serif; font-size: .88rem; padding: 10px 36px 10px 14px; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; cursor: pointer; }
+        .vl-select:focus { outline: none; border-color: #c9a84c; }
+        .vl-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .vl-price-wrap { position: relative; }
+        .vl-price-wrap .cur { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: .82rem; color: #888; }
+        .vl-price-input { width: 100%; background: #111; border: 1px solid #2a2a2a; border-radius: 6px; color: #fff; font-family: 'Barlow',sans-serif; font-size: .88rem; padding: 10px 10px 10px 26px; box-sizing: border-box; }
+        .vl-price-input:focus { outline: none; border-color: #c9a84c; }
+        .vl-price-input::placeholder { color: #555; }
+        .vl-range { width: 100%; margin-top: 12px; accent-color: #c9a84c; }
+        .vl-range-labels { display: flex; justify-content: space-between; font-size: .75rem; color: #888; margin-top: 4px; }
+        .vl-btn { width: 100%; padding: 12px; border-radius: 6px; font-family: 'Barlow',sans-serif; font-size: .88rem; font-weight: 600; cursor: pointer; border: none; margin-top: 8px; }
+        .vl-btn-apply { background: #c9a84c; color: #000; }
+        .vl-btn-apply:hover { background: #e0bc5a; }
+        .vl-btn-clear { background: transparent; border: 1px solid #2a2a2a; color: #888; }
+        .vl-btn-clear:hover { border-color: #c0392b; color: #c0392b; }
+        .vl-results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .vl-count { font-size: .85rem; color: #888; }
+        .vl-count strong { color: #fff; }
+        .vl-sort { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; color: #fff; font-family: 'Barlow',sans-serif; font-size: .82rem; padding: 8px 32px 8px 12px; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; cursor: pointer; }
+        .vl-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+        .vl-chip { display: inline-flex; align-items: center; gap: 6px; background: rgba(201,168,76,.12); border: 1px solid rgba(201,168,76,.3); color: #c9a84c; font-size: .78rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+        .vl-chip button { background: none; border: none; color: #c9a84c; cursor: pointer; font-size: .9rem; padding: 0; }
+        .vl-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
+        .vl-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; overflow: hidden; transition: border-color .25s,transform .25s; text-decoration: none; display: block; }
+        .vl-card:hover { border-color: rgba(201,168,76,.5); transform: translateY(-4px); }
+        .vl-img-wrap { position: relative; }
+        .vl-img-wrap img { width: 100%; height: 160px; object-fit: cover; display: block; filter: brightness(.82); transition: filter .3s; }
+        .vl-card:hover .vl-img-wrap img { filter: brightness(.95); }
+        .vl-tag-novo { position: absolute; top: 10px; right: 10px; background: #c9a84c; color: #000; font-family: 'Barlow Condensed',sans-serif; font-size: .78rem; font-weight: 800; padding: 3px 9px; border-radius: 4px; }
+        .vl-body { padding: 14px 16px 18px; }
+        .vl-meta { display: flex; gap: 10px; margin-bottom: 6px; }
+        .vl-meta span { font-size: .72rem; color: #888; background: #111; padding: 2px 8px; border-radius: 3px; }
+        .vl-body h4 { font-family: 'Barlow Condensed',sans-serif; font-size: 1.05rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; color: #fff; }
+        .vl-price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+        .vl-price { font-family: 'Barlow Condensed',sans-serif; font-size: 1.3rem; font-weight: 900; color: #c9a84c; }
+        .vl-btn-ver { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 6px; background: #c9a84c; color: #000; font-family: 'Barlow',sans-serif; font-size: .82rem; font-weight: 600; border: none; cursor: pointer; text-decoration: none; transition: all .2s; }
+        .vl-btn-ver:hover { background: #e0bc5a; transform: translateY(-1px); }
+        .vl-empty { color: #888; padding: 40px; grid-column: 1/-1; }
+        @@media (max-width:1100px) { .vl-grid { grid-template-columns: repeat(2,1fr); } }
+        @@media (max-width:768px) { .vl-layout { grid-template-columns: 1fr; padding: 20px; } .vl-header { padding: 24px 20px 0; } }
+        @@media (max-width:500px) { .vl-grid { grid-template-columns: 1fr; } }
+    </style>
+}
+
+<div class="vl-header">
+    <div class="vl-breadcrumb">
+        <a asp-page="/Index">Início</a><span>›</span><span>Veículos</span>
+    </div>
+    <h1 class="vl-title">Veículos <span>Disponíveis</span></h1>
+</div>
+
+<div class="vl-layout">
+    <aside class="vl-filters">
+        <div class="vl-filters-title">Filtros</div>
+
+        <div class="vl-filter-group">
+            <label class="vl-filter-label">Tipo</label>
+            <select class="vl-select" id="vl-tipo">
+                <option value="">Todos</option>
+                <option value="carro">Carro</option>
+                <option value="mota">Mota</option>
+            </select>
+        </div>
+
+        <div class="vl-filter-group">
+            <label class="vl-filter-label">Preço</label>
+            <div class="vl-two-col">
+                <div class="vl-price-wrap">
+                    <span class="cur">€</span>
+                    <input type="number" class="vl-price-input" id="vl-preco-min" placeholder="Mín" min="0" />
+                </div>
+                <div class="vl-price-wrap">
+                    <span class="cur">€</span>
+                    <input type="number" class="vl-price-input" id="vl-preco-max" placeholder="Máx" min="0" />
+                </div>
+            </div>
+            <input type="range" class="vl-range" id="vl-slider"
+                   min="0" max="@precoTeto" value="@precoTeto" step="@precoStep" />
+            <div class="vl-range-labels">
+                <span>€0</span>
+                <span id="vl-slider-val">€@precoTeto.ToString("N0")</span>
+            </div>
+        </div>
+
+        <div class="vl-filter-group">
+            <label class="vl-filter-label">Marca</label>
+            <select class="vl-select" id="vl-marca">
+                <option value="">Todas as marcas</option>
+                @foreach (var m in marcas)
+                {
+                    <option value="@m.ToLower()">@m</option>
+                }
+            </select>
+        </div>
+
+        <div class="vl-filter-group">
+            <label class="vl-filter-label">Ano de Fabrico</label>
+            <div class="vl-two-col">
+                <select class="vl-select" id="vl-ano-min">
+                    <option value="">De</option>
+                    @for (int y = anoMin; y <= anoMax; y++)
+                    {
+                        <option value="@y">@y</option>
+                    }
+                </select>
+                <select class="vl-select" id="vl-ano-max">
+                    <option value="">Até</option>
+                    @for (int y = anoMin; y <= anoMax; y++)
+                    {
+                        <option value="@y">@y</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="vl-filter-group">
+            <label class="vl-filter-label">Categoria</label>
+            <select class="vl-select" id="vl-cat">
+                <option value="">Todas as categorias</option>
+                @foreach (var c in cats)
+                {
+                    <option value="@c!.ToLower()">@c</option>
+                }
+            </select>
+        </div>
+
+        <button class="vl-btn vl-btn-apply" onclick="vlAplicar()">Aplicar Filtros</button>
+        <button class="vl-btn vl-btn-clear" onclick="vlLimpar()">Limpar Filtros</button>
+    </aside>
+
+    <div>
+        <div class="vl-chips" id="vl-chips"></div>
+        <div class="vl-results-header">
+            <div class="vl-count">A mostrar <strong id="vl-count">0</strong> veículos</div>
+            <select class="vl-sort" onchange="vlOrdenar(this.value)">
+                <option value="">Ordenar: Relevância</option>
+                <option value="preco-asc">Preço: Mais baixo primeiro</option>
+                <option value="preco-desc">Preço: Mais alto primeiro</option>
+                <option value="ano-desc">Ano: Mais recente</option>
+                <option value="ano-asc">Ano: Mais antigo</option>
+            </select>
+        </div>
+        <div class="vl-grid" id="vl-grid">
+            @foreach (var v in Model.Veiculos)
+            {
+                var fallback = "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=500&auto=format&fit=crop";
+                <a href="@v.DetalheUrl" class="vl-card"
+                   data-tipo="@v.Tipo.ToLower()"
+                   data-marca="@v.Marca.ToLower()"
+                   data-ano="@v.Ano"
+                   data-cat="@(v.Categoria?.ToLower())"
+                   data-preco="@((int)v.Preco)">
+                    <div class="vl-img-wrap">
+                        <img src="@(string.IsNullOrEmpty(v.ImagemPath) ? fallback : v.ImagemPath)"
+                             alt="@v.Marca @v.Modelo" loading="lazy" />
+                        <span class="vl-tag-novo">@v.Tipo</span>
+                    </div>
+                    <div class="vl-body">
+                        <div class="vl-meta">
+                            <span>@v.Ano</span>
+                            @if (!string.IsNullOrEmpty(v.Categoria))
+                            {
+                                <span>@v.Categoria</span>
+                            }
+                            @if (!string.IsNullOrEmpty(v.Combustivel))
+                            {
+                                <span>@v.Combustivel</span>
+                            }
+                        </div>
+                        <h4>@v.Marca @v.Modelo</h4>
+                        <div class="vl-price-row">
+                            <span class="vl-price">€@v.Preco.ToString("N0")</span>
+                        </div>
+                        @if (v.Kilometragem.HasValue)
+                        {
+                            <div style="font-size:.8rem;color:#888;margin-bottom:10px;">@v.Kilometragem.Value.ToString("N0") km</div>
+                        }
+                        <span class="vl-btn-ver">Ver Oferta →</span>
+                    </div>
+                </a>
+            }
+            @if (!Model.Veiculos.Any())
+            {
+                <p class="vl-empty">Ainda não há veículos disponíveis no catálogo.</p>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const slider = document.getElementById('vl-slider');
+        const sliderLbl = document.getElementById('vl-slider-val');
+        const maxInit = parseInt(slider.max);
+
+        slider.addEventListener('input', () => {
+            sliderLbl.textContent = '€' + parseInt(slider.value).toLocaleString('pt-PT');
+            document.getElementById('vl-preco-max').value = slider.value;
+        });
+
+        window.vlAplicar = function () {
+            const tipo     = document.getElementById('vl-tipo').value;
+            const marca    = document.getElementById('vl-marca').value;
+            const cat      = document.getElementById('vl-cat').value;
+            const anoMin   = parseInt(document.getElementById('vl-ano-min').value) || 0;
+            const anoMax   = parseInt(document.getElementById('vl-ano-max').value) || 9999;
+            const precoMin = parseInt(document.getElementById('vl-preco-min').value) || 0;
+            const precoMax = parseInt(document.getElementById('vl-preco-max').value) || 9999999;
+            let visible = 0;
+            document.querySelectorAll('.vl-card').forEach(card => {
+                const ok = (!tipo  || card.dataset.tipo  === tipo)
+                        && (!marca || card.dataset.marca === marca)
+                        && (!cat   || card.dataset.cat   === cat)
+                        && parseInt(card.dataset.ano)   >= anoMin
+                        && parseInt(card.dataset.ano)   <= anoMax
+                        && parseInt(card.dataset.preco) >= precoMin
+                        && parseInt(card.dataset.preco) <= precoMax;
+                card.style.display = ok ? '' : 'none';
+                if (ok) visible++;
+            });
+            document.getElementById('vl-count').textContent = visible;
+            vlChips(tipo, marca, cat, anoMin, anoMax, precoMin, precoMax);
+        };
+
+        window.vlLimpar = function () {
+            ['vl-tipo','vl-marca','vl-cat','vl-ano-min','vl-ano-max'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('vl-preco-min').value = '';
+            document.getElementById('vl-preco-max').value = '';
+            slider.value = maxInit;
+            sliderLbl.textContent = '€' + maxInit.toLocaleString('pt-PT');
+            document.getElementById('vl-chips').innerHTML = '';
+            document.querySelectorAll('.vl-card').forEach(c => c.style.display = '');
+            document.getElementById('vl-count').textContent = document.querySelectorAll('.vl-card').length;
+        };
+
+        window.vlOrdenar = function (criterio) {
+            const grid  = document.getElementById('vl-grid');
+            const cards = Array.from(grid.querySelectorAll('.vl-card'));
+            cards.sort((a, b) => {
+                if (criterio === 'preco-asc')  return parseInt(a.dataset.preco) - parseInt(b.dataset.preco);
+                if (criterio === 'preco-desc') return parseInt(b.dataset.preco) - parseInt(a.dataset.preco);
+                if (criterio === 'ano-desc')   return parseInt(b.dataset.ano)   - parseInt(a.dataset.ano);
+                if (criterio === 'ano-asc')    return parseInt(a.dataset.ano)   - parseInt(b.dataset.ano);
+                return 0;
+            });
+            cards.forEach(c => grid.appendChild(c));
+        };
+
+        function vlChips(tipo, marca, cat, anoMin, anoMax, precoMin, precoMax) {
+            const wrap = document.getElementById('vl-chips');
+            wrap.innerHTML = '';
+            if (tipo)  addChip(wrap, 'Tipo: ' + tipo.charAt(0).toUpperCase() + tipo.slice(1));
+            if (marca) addChip(wrap, 'Marca: ' + marca.charAt(0).toUpperCase() + marca.slice(1));
+            if (cat)   addChip(wrap, 'Categoria: ' + cat.charAt(0).toUpperCase() + cat.slice(1));
+            if (anoMin > 0 || anoMax < 9999) addChip(wrap, 'Ano: ' + (anoMin||'—') + ' – ' + (anoMax < 9999 ? anoMax : '—'));
+            if (precoMin > 0)       addChip(wrap, 'Preço mín: €' + precoMin.toLocaleString('pt-PT'));
+            if (precoMax < 9999999) addChip(wrap, 'Preço máx: €' + precoMax.toLocaleString('pt-PT'));
+        }
+
+        function addChip(wrap, text) {
+            const chip = document.createElement('div');
+            chip.className = 'vl-chip';
+            chip.innerHTML = text + '<button onclick="vlLimpar()">✕</button>';
+            wrap.appendChild(chip);
+        }
+
+        document.getElementById('vl-count').textContent = document.querySelectorAll('.vl-card').length;
+    })();
+</script>

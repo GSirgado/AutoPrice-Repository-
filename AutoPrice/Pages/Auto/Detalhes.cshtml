@@ -1,0 +1,99 @@
+﻿@page "/Auto/Detalhes/{id:int}"
+@model AutoPrice.Pages.AutoPages.DetalhesModel
+
+@{
+    ViewData["Title"] = Model.Anuncio?.Titulo ?? "Detalhes";
+    var a = Model.Anuncio;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/detalhes.css" asp-append-version="true" />
+}
+
+@if (a == null)
+{
+    <p style="padding:40px;color:#fff">Veículo não encontrado.</p>
+}
+else
+{
+    <div class="breadcrumb">
+        <a href="/">Início</a>
+        <span>›</span>
+        <span>@a.Marca</span>
+        <span>›</span>
+        <span>@a.Titulo</span>
+    </div>
+
+    <div class="detail-layout">
+
+        <!-- COLUNA ESQUERDA -->
+        <div>
+            <div class="main-image-wrap">
+                <img id="main-img"
+                     src="https://images.unsplash.com/photo-1556189250-72ba954cfc2b?w=900&auto=format&fit=crop"
+                     alt="@a.Titulo" />
+                <span class="novo-tag">@a.Condicao</span>
+            </div>
+
+            <div class="desc-block">
+                <h3>Descrição</h3>
+                <p>@a.Descricao</p>
+            </div>
+        </div>
+
+        <!-- COLUNA DIREITA -->
+        <div class="detail-panel">
+            <div>
+                <div class="car-marca">@a.Marca</div>
+                <div class="car-title">@a.Titulo</div>
+                <div class="car-sub">@a.Ano · @a.Combustivel · @a.Transmissao</div>
+            </div>
+
+            <div class="price-block">
+                <div class="price-label">Preço</div>
+                <div class="price-main">€@a.Preco.ToString("N0")</div>
+            </div>
+
+            <div class="specs-block">
+                <div class="specs-title">Ficha Técnica</div>
+                <div class="specs-grid">
+                    <div class="spec-item">
+                        <div class="spec-label">Ano</div>
+                        <div class="spec-value">@a.Ano</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Marca</div>
+                        <div class="spec-value">@a.Marca</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Modelo</div>
+                        <div class="spec-value">@a.Modelo</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Combustível</div>
+                        <div class="spec-value">@(a.Combustivel ?? "—")</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Transmissão</div>
+                        <div class="spec-value">@(a.Transmissao ?? "—")</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Quilómetros</div>
+                        <div class="spec-value">@(a.Kilometragem.HasValue ? a.Kilometragem + " km" : "—")</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Cor</div>
+                        <div class="spec-value">@(a.Cor ?? "—")</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Potência</div>
+                        <div class="spec-value">@(a.Potencia.HasValue ? a.Potencia + " cv" : "—")</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-comprar" onclick="alert('Pedido de compra enviado!')">Comprar Agora</button>
+            <button class="btn-contacto" onclick="alert('Entraremos em contacto brevemente.')">Contactar Vendedor</button>
+        </div>
+    </div>
+}

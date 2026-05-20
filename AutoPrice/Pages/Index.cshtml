@@ -1,0 +1,85 @@
+﻿@page
+@model IndexModel
+
+@{
+    ViewData["Title"] = "AutoPrice - Novidades e Descontos Imperdíveis";
+}
+
+@section Styles {
+        <link rel="stylesheet" href="~/css/index.css" asp-append-version="true" />
+}
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>Novidades e<br /><span>Descontos</span><br />Imperdíveis!</h1>
+        <p>Descontos exclusivos em carros e motos.<br />Não perca as melhores ofertas!</p>
+        <a href="#" class="btn btn-gold">Ver Ofertas</a>
+    </div>
+    <img class="hero-image" src="~/img/mota_carro_bmw.png" alt="Carro em destaque" />
+</section>
+
+<!-- PROMO STRIP -->
+<div class="promo-strip">
+    <div class="promo-badge">
+        <span class="badge-label">Promoção</span>
+        <span class="badge-title">Especial!</span>
+    </div>
+    <div class="promo-info">
+        <div class="promo-amount">Até €5.000 de desconto em veículos selecionados</div>
+        <a href="#" class="btn btn-gold btn-sm">Ver Ofertas</a>
+    </div>
+</div>
+
+<!-- CATEGORIAS -->
+<section class="section">
+    <div class="category-grid">
+        <div class="cat-card">
+            <img class="cat-card-img"
+                 src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=600&auto=format&fit=crop"
+                 alt="Carros Novos" />
+            <h3>Carros Novos</h3>
+            <p>Confira as novidades e lançamentos</p>
+            <a href="#" class="btn btn-gold btn-sm">Ver Carros</a>
+        </div>
+        <div class="cat-card">
+            <img class="cat-card-img"
+                 src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600&auto=format&fit=crop"
+                 alt="Motas Novas" />
+            <h3>Motas Novas</h3>
+            <p>Veja as motos mais recentes</p>
+            <a href="#" class="btn btn-gold btn-sm">Ver Motas</a>
+        </div>
+    </div>
+</section>
+
+<!-- VEÍCULOS EM DESTAQUE -->
+<section class="section" style="padding-top: 0;">
+    <div class="section-title">Veículos em Destaque</div>
+    <div class="section-sub">Aproveite as ofertas imperdíveis em veículos selecionados</div>
+    <div class="vehicle-grid">
+        @if (Model.Destaques.Any())
+        {
+            @foreach (var anuncio in Model.Destaques)
+            {
+                <a href="/Auto/Detalhes/@anuncio.Id" class="vehicle-card">
+                    <div class="vehicle-img-wrap">
+                        <img src="https://images.unsplash.com/photo-1556189250-72ba954cfc2b?w=400&auto=format&fit=crop"
+                             alt="@anuncio.Titulo" />
+                    </div>
+                    <div class="vehicle-body">
+                        <h4>@anuncio.Marca @anuncio.Modelo</h4>
+                        <div class="price-row">
+                            <span class="price-current">€@anuncio.Preco.ToString("N0")</span>
+                        </div>
+                        <div>@anuncio.Ano | @anuncio.Combustivel</div>
+                    </div>
+                </a>
+            }
+        }
+        else
+        {
+            <p>Nenhum veículo disponível.</p>
+        }
+    </div>
+</section>

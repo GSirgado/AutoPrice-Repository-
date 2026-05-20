@@ -1,0 +1,46 @@
+﻿@page
+@model AutoPrice.Pages.Auth.RegistoModel
+
+@{
+    ViewData["Title"] = "Criar Conta";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+}
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h2 class="auth-title">Criar conta</h2>
+        <p class="auth-sub">Junte-se à AutoPrice hoje</p>
+
+        @if (Model.Erro != null)
+        {
+            <div class="auth-erro">@Model.Erro</div>
+        }
+
+        <form method="post">
+            <div class="form-group">
+                <label>Nome Completo</label>
+                <input type="text" asp-for="NomeCompleto" placeholder="O seu nome" required />
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" asp-for="Email" placeholder="o-seu@email.com" required />
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" asp-for="Password" placeholder="Mínimo 6 caracteres" required />
+            </div>
+            <div class="form-group">
+                <label>Confirmar Password</label>
+                <input type="password" asp-for="ConfirmarPassword" placeholder="Repetir password" required />
+            </div>
+            <button type="submit" class="btn-auth">Criar Conta</button>
+        </form>
+
+        <p class="auth-link">
+            Já tem conta? <a href="/Auth/Login">Entrar</a>
+        </p>
+    </div>
+</div>

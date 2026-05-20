@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <!-- NAV -->
+    <nav>
+        <a asp-page="/Index"><img class="logo" src="~/img/Logo_AP.png" /></a>
+        <div class="nav-links">
+            <a asp-page="/Auto/Catalogo">Comprar</a>
+            <a asp-page="/Auto/Vender">Vender</a>
+            <a asp-page="/Index">Avaliar</a>
+
+            @if (Context.Request.Cookies["token"] != null)
+            {
+                <a asp-page="/Auth/Logout">
+                    <img src="~/img/icons/adduser.png" class="user-icon" title="@Context.Request.Cookies["nomeCompleto"]" />
+                </a>
+            }
+            else
+            {
+                <a asp-page="/Auth/Registo">
+                    <img src="~/img/icons/adduser.png" class="user-icon" title="Registo" />
+                </a>
+            }
+        </div>
+    </nav>
+
+    @RenderBody()
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-nav">
+            <a asp-page="/Index">Carros</a>
+            <a asp-page="/Index">Motas</a>
+            <a asp-page="/Index">Sobre</a>
+        </div>
+        <div class="social-row">
+            <a asp-page="/Index" title="Email"><img class="social-icon" src="~/img/icons/email.png" /></a>
+            <a asp-page="/Index" class="social-icon" title="Instagram">&#xf16d;</a>
+            <a asp-page="/Index" class="social-icon" title="YouTube">&#xf167;</a>
+        </div>
+        <div class="footer-copy">
+            &copy; 2026 AutoPrice. Todos os direitos reservados.
+        </div>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

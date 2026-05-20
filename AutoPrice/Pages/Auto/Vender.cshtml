@@ -1,0 +1,346 @@
+﻿@page
+@model AutoPrice.Pages.VenderModel
+
+@{
+    ViewData["Title"] = "Vender Veículo";
+}
+
+@section Styles {
+    <style>
+        .vender-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        .vender-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+            .vender-title span {
+                color: #c9a84c;
+            }
+
+        .vender-sub {
+            color: #888;
+            margin-bottom: 40px;
+        }
+
+        .vender-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 16px;
+            padding: 40px;
+        }
+
+        .vender-section {
+            margin-bottom: 36px;
+        }
+
+        .vender-section-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #c9a84c;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .vender-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .vender-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+            .form-group.full {
+                grid-column: 1 / -1;
+            }
+
+            .form-group label {
+                font-size: .78rem;
+                font-weight: 600;
+                color: #888;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                background: #111;
+                border: 1px solid #2a2a2a;
+                border-radius: 8px;
+                color: #fff;
+                font-family: 'Barlow', sans-serif;
+                font-size: .95rem;
+                padding: 12px 14px;
+                transition: border-color .2s;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+                .form-group input:focus,
+                .form-group select:focus,
+                .form-group textarea:focus {
+                    outline: none;
+                    border-color: #c9a84c;
+                }
+
+                .form-group input::placeholder,
+                .form-group textarea::placeholder {
+                    color: #444;
+                }
+
+            .form-group textarea {
+                resize: vertical;
+                min-height: 120px;
+            }
+
+            .form-group select option {
+                background: #1a1a1a;
+            }
+
+        .vender-alert {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: .9rem;
+        }
+
+            .vender-alert.erro {
+                background: #2a1111;
+                border: 1px solid #c0392b;
+                color: #e74c3c;
+            }
+
+            .vender-alert.sucesso {
+                background: #112a1a;
+                border: 1px solid #27ae60;
+                color: #2ecc71;
+            }
+
+        .vender-info {
+            background: #111;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            font-size: .85rem;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .vender-info::before {
+                content: 'ℹ';
+                color: #c9a84c;
+                font-size: 1.1rem;
+            }
+
+        .btn-publicar {
+            width: 100%;
+            background: #c9a84c;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Barlow Condensed', sans-serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background .2s;
+            margin-top: 8px;
+        }
+
+            .btn-publicar:hover {
+                background: #e0bc5a;
+            }
+
+        @@media (max-width: 600px) {
+            .vender-grid, .vender-grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .vender-card {
+                padding: 24px;
+            }
+        }
+    </style>
+}
+
+<div class="vender-wrapper">
+    <h1 class="vender-title">Publicar <span>Anúncio</span></h1>
+    <p class="vender-sub">Preenche os detalhes do teu veículo para o colocar à venda.</p>
+
+    @if (!string.IsNullOrEmpty(Model.Sucesso))
+    {
+        <div class="vender-alert sucesso">✓ @Model.Sucesso</div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.Erro))
+    {
+        <div class="vender-alert erro">✕ @Model.Erro</div>
+    }
+
+    @if (Request.Cookies["token"] == null)
+    {
+        <div class="vender-info">
+            Tens de <a href="/Auth/Login" style="color:#c9a84c">iniciar sessão</a> para publicar um anúncio.
+        </div>
+    }
+
+    <form method="post">
+        <div class="vender-card">
+
+            <!-- INFORMAÇÕES GERAIS -->
+            <div class="vender-section">
+                <div class="vender-section-title">Informações Gerais</div>
+                <div class="vender-grid">
+                    <div class="form-group full">
+                        <label>Título do Anúncio</label>
+                        <input type="text" asp-for="Titulo"
+                               placeholder="Ex: BMW Série 3 320d - Excelente estado" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <select asp-for="CategoriaId" required>
+                            <option value="">Selecionar categoria</option>
+                            @foreach (var cat in Model.Categorias)
+                            {
+                                <option value="@cat.Id">@cat.Nome</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Condição</label>
+                        <select asp-for="Condicao">
+                            <option value="">Selecionar</option>
+                            <option value="Novo">Novo</option>
+                            <option value="Usado">Usado</option>
+                            <option value="Para peças">Para peças</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DADOS DO VEÍCULO -->
+            <div class="vender-section">
+                <div class="vender-section-title">Dados do Veículo</div>
+                <div class="vender-grid">
+                    <div class="form-group">
+                        <label>Marca</label>
+                        <input type="text" asp-for="Marca" placeholder="Ex: BMW" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Modelo</label>
+                        <input type="text" asp-for="Modelo" placeholder="Ex: Série 3" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Ano</label>
+                        <input type="number" asp-for="Ano" placeholder="Ex: 2020"
+                               min="1900" max="2026" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Quilómetros</label>
+                        <input type="number" asp-for="Kilometragem" placeholder="Ex: 45000" min="0" />
+                    </div>
+                    <div class="form-group">
+                        <label>Cor</label>
+                        <input type="text" asp-for="Cor" placeholder="Ex: Preto" />
+                    </div>
+                    <div class="form-group">
+                        <label>Potência (cv)</label>
+                        <input type="number" asp-for="Potencia" placeholder="Ex: 150" min="0" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- MOTOR E TRANSMISSÃO -->
+            <div class="vender-section">
+                <div class="vender-section-title">Motor e Transmissão</div>
+                <div class="vender-grid">
+                    <div class="form-group">
+                        <label>Combustível</label>
+                        <select asp-for="Combustivel">
+                            <option value="">Selecionar</option>
+                            <option value="Gasolina">Gasolina</option>
+                            <option value="Diesel">Diesel</option>
+                            <option value="Elétrico">Elétrico</option>
+                            <option value="Híbrido">Híbrido</option>
+                            <option value="GPL">GPL</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Transmissão</label>
+                        <select asp-for="Transmissao">
+                            <option value="">Selecionar</option>
+                            <option value="Manual">Manual</option>
+                            <option value="Automático">Automático</option>
+                            <option value="Semi-automático">Semi-automático</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PREÇO E LOCALIZAÇÃO -->
+            <div class="vender-section">
+                <div class="vender-section-title">Preço e Localização</div>
+                <div class="vender-grid">
+                    <div class="form-group">
+                        <label>Preço (€)</label>
+                        <input type="number" asp-for="Preco" placeholder="Ex: 25000"
+                               min="0" step="100" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Localização</label>
+                        <input type="text" asp-for="Localizacao" placeholder="Ex: Lisboa" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- DESCRIÇÃO -->
+            <div class="vender-section">
+                <div class="vender-section-title">Descrição</div>
+                <div class="form-group">
+                    <label>Descrição do Veículo</label>
+                    <textarea asp-for="Descricao"
+                              placeholder="Descreve o estado do veículo, histórico de manutenção, extras incluídos..."></textarea>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Sucesso))
+            {
+                <div class="vender-alert sucesso">✓ @Model.Sucesso</div>
+            }
+            @if (!string.IsNullOrEmpty(Model.Erro))
+            {
+                <div class="vender-alert erro">✕ @Model.Erro</div>
+            }
+
+            <button type="submit" class="btn-publicar">Publicar Anúncio</button>
+        </div>
+    </form>
+</div>
