@@ -279,8 +279,11 @@ C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\st
 C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.AutoMarket.props
 C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.AutoMarket.props
 C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets.pack.json
-C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.csproj.Up2Date
 C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.genruntimeconfig.cache
 C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\ref\AutoMarket.dll
 C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\bin\Debug\net8.0\AutoMarket.staticwebassets.runtime.json
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\bin\Debug\net8.0\Azure.Storage.Blobs.dll
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\bin\Debug\net8.0\Azure.Storage.Common.dll
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\bin\Debug\net8.0\System.IO.Hashing.dll
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

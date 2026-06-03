@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AutoMarket.Controllers
@@ -8,11 +10,11 @@ namespace AutoMarket.Controllers
     [Authorize]
     public class UploadController : ControllerBase
     {
-        private readonly IWebHostEnvironment _env;
+        private readonly IConfiguration _config;
 
-        public UploadController(IWebHostEnvironment env)
+        public UploadController(IConfiguration config)
         {
-            _env = env;
+            _config = config;
         }
 
         [HttpPost("foto")]
@@ -28,21 +30,27 @@ namespace AutoMarket.Controllers
             if (ficheiro.Length > 5 * 1024 * 1024)
                 return BadRequest(new { mensagem = "Ficheiro demasiado grande. Máximo 5MB." });
 
-            // Usar ContentRootPath em vez de WebRootPath
-            var pastaUploads = Path.Combine(_env.ContentRootPath, "wwwroot", "uploads", "fotos");
-            if (!Directory.Exists(pastaUploads))
-                Directory.CreateDirectory(pastaUploads);
+            // Ligar ao Azure Blob Storage
+            var connectionString = _config["AzureStorage:ConnectionString"];
+            var containerName = _config["AzureStorage:ContainerName"];
 
+            var blobServiceClient = new BlobServiceClient(connectionString);
+            var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+
+            // Gerar nome único para o ficheiro
             var extensao = Path.GetExtension(ficheiro.FileName);
             var nomeUnico = Guid.NewGuid().ToString() + extensao;
-            var caminhoFicheiro = Path.Combine(pastaUploads, nomeUnico);
+            var blobClient = containerClient.GetBlobClient(nomeUnico);
 
-            using (var stream = new FileStream(caminhoFicheiro, FileMode.Create))
+            // Fazer upload para o Azure
+            using var stream = ficheiro.OpenReadStream();
+            await blobClient.UploadAsync(stream, new BlobHttpHeaders
             {
-                await ficheiro.CopyToAsync(stream);
-            }
+                ContentType = ficheiro.ContentType
+            });
 
-            var url = $"/uploads/fotos/{nomeUnico}";
+            // Devolver o URL público da imagem
+            var url = blobClient.Uri.ToString();
             return Ok(new { url });
         }
     }

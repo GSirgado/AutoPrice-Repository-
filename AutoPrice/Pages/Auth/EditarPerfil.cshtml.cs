@@ -40,14 +40,14 @@ namespace AutoPrice.Pages
             var response = await client.GetAsync("/api/perfil");
             if (response.IsSuccessStatusCode)
             {
-                var json = await response.Content.ReadAsStringAsync();
-                var perfil = JsonSerializer.Deserialize<JsonElement>(json);
+                if (!string.IsNullOrWhiteSpace(NomeCompleto))
+                    Response.Cookies.Append("nomeCompleto", NomeCompleto);
 
-                NomeCompleto = perfil.GetProperty("nomeCompleto").GetString() ?? "";
-                Email = perfil.GetProperty("email").GetString() ?? "";
-                Telefone = perfil.TryGetProperty("telefone", out var tel) ? tel.GetString() : null;
-                Localizacao = perfil.TryGetProperty("localizacao", out var loc) ? loc.GetString() : null;
-                FotoUrl = perfil.TryGetProperty("fotoUrl", out var foto) ? foto.GetString() : null;
+                // Guardar foto no cookie
+                if (!string.IsNullOrEmpty(FotoUrl))
+                    Response.Cookies.Append("fotoUrl", FotoUrl);
+
+                Sucesso = "Perfil atualizado com sucesso!";
             }
 
             return Page();
@@ -94,7 +94,7 @@ namespace AutoPrice.Pages
                 {
                     var jsonUpload = await responseUpload.Content.ReadAsStringAsync();
                     var resultado = JsonSerializer.Deserialize<JsonElement>(jsonUpload);
-                    FotoUrl = "http://localhost:5018" + resultado.GetProperty("url").GetString();
+                    FotoUrl = resultado.GetProperty("url").GetString();
                 }
                 else
                 {

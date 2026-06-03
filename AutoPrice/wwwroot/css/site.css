@@ -70,9 +70,11 @@ nav {
         }
 
 .user-icon {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #c9a84c;
     cursor: pointer;
     transition: opacity 0.2s;
 }

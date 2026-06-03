@@ -43,10 +43,25 @@ namespace AutoPrice.Pages.Auth
                 var token = resultado.GetProperty("token").GetString();
                 var nome = resultado.GetProperty("nomeCompleto").GetString();
 
-                // Guardar token e nome em cookies
                 Response.Cookies.Append("token", token!,
                     new CookieOptions { HttpOnly = true, SameSite = SameSiteMode.Strict });
                 Response.Cookies.Append("nomeCompleto", nome!);
+
+                // Ir buscar a foto do perfil
+                var clientPerfil = _clientFactory.CreateClient("AutoMarketAPI");
+                clientPerfil.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                var responsePerfil = await clientPerfil.GetAsync("/api/perfil");
+                if (responsePerfil.IsSuccessStatusCode)
+                {
+                    var jsonPerfil = await responsePerfil.Content.ReadAsStringAsync();
+                    var perfil = JsonSerializer.Deserialize<JsonElement>(jsonPerfil);
+                    var fotoUrl = perfil.TryGetProperty("fotoUrl", out var foto) ? foto.GetString() : null;
+
+                    if (!string.IsNullOrEmpty(fotoUrl))
+                        Response.Cookies.Append("fotoUrl", fotoUrl);
+                }
 
                 return RedirectToPage("/Index");
             }

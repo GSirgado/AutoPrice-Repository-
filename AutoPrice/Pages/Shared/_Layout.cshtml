@@ -19,9 +19,14 @@
 
             @if (Context.Request.Cookies["token"] != null)
             {
+                var fotoUser = Context.Request.Cookies["fotoUrl"];
+                var nomeUser = Context.Request.Cookies["nomeCompleto"] ?? "User";
+                var fotoSrc = string.IsNullOrEmpty(fotoUser)
+                ? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(nomeUser) + "&background=c9a84c&color=000&size=200"
+                : fotoUser;
+
                 <a asp-page="/Auth/Perfil">
-                    <img src="~/img/icons/adduser.png" class="user-icon"
-                         title="@Context.Request.Cookies["nomeCompleto"]" />
+                    <img src="@fotoSrc" class="user-icon" title="@nomeUser" />
                 </a>
                 <a asp-page="/Auth/Logout">Sair</a>
             }
