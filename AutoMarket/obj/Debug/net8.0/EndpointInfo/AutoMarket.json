@@ -350,6 +350,79 @@
           }
         }
       }
+    },
+    "/api/Perfil": {
+      "get": {
+        "tags": [
+          "Perfil"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Perfil"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AtualizarPerfilDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AtualizarPerfilDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AtualizarPerfilDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Upload/foto": {
+      "post": {
+        "tags": [
+          "Upload"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ficheiro": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "ficheiro": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -404,6 +477,36 @@
           },
           "categoria": {
             "$ref": "#/components/schemas/Categoria"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AtualizarPerfilDto": {
+        "type": "object",
+        "properties": {
+          "nomeCompleto": {
+            "type": "string",
+            "nullable": true
+          },
+          "telefone": {
+            "type": "string",
+            "nullable": true
+          },
+          "localizacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "fotoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "passwordAtual": {
+            "type": "string",
+            "nullable": true
+          },
+          "novaPassword": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

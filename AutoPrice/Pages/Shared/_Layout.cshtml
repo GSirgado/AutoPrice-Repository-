@@ -19,15 +19,16 @@
 
             @if (Context.Request.Cookies["token"] != null)
             {
-                <a asp-page="/Auth/Logout">
-                    <img src="~/img/icons/adduser.png" class="user-icon" title="@Context.Request.Cookies["nomeCompleto"]" />
+                <a asp-page="/Auth/Perfil">
+                    <img src="~/img/icons/adduser.png" class="user-icon"
+                         title="@Context.Request.Cookies["nomeCompleto"]" />
                 </a>
+                <a asp-page="/Auth/Logout">Sair</a>
             }
             else
             {
-                <a asp-page="/Auth/Registo">
-                    <img src="~/img/icons/adduser.png" class="user-icon" title="Registo" />
-                </a>
+                <a asp-page="/Auth/Login">Entrar</a>
+                <a asp-page="/Auth/Registo">Registar</a>
             }
         </div>
     </nav>

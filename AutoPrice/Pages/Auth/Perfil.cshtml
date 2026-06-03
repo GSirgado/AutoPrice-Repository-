@@ -1,0 +1,275 @@
+﻿@page
+@model AutoPrice.Pages.PerfilModel
+
+@{
+    ViewData["Title"] = "Perfil";
+    var foto = string.IsNullOrEmpty(Model.FotoUrl)
+        ? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(Model.NomeCompleto) + "&background=c9a84c&color=000&size=200"
+        : Model.FotoUrl;
+}
+
+@section Styles {
+    <style>
+        .perfil-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        .perfil-hero {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 16px;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            margin-bottom: 28px;
+        }
+
+        .perfil-foto {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #c9a84c;
+            flex-shrink: 0;
+        }
+
+        .perfil-info {
+            flex: 1;
+        }
+
+        .perfil-nome {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .perfil-email {
+            color: #888;
+            font-size: .9rem;
+            margin-bottom: 12px;
+        }
+
+        .perfil-badges {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .perfil-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #111;
+            border: 1px solid #2a2a2a;
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: .8rem;
+            color: #aaa;
+        }
+
+            .perfil-badge span {
+                color: #c9a84c;
+            }
+
+        .btn-editar {
+            background: transparent;
+            border: 1px solid #c9a84c;
+            color: #c9a84c;
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-family: 'Barlow', sans-serif;
+            font-size: .9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+            .btn-editar:hover {
+                background: #c9a84c;
+                color: #000;
+            }
+
+        .perfil-section-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+            .perfil-section-title span {
+                color: #c9a84c;
+            }
+
+        .anuncios-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .anuncio-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            overflow: hidden;
+            text-decoration: none;
+            transition: border-color .2s, transform .2s;
+            display: block;
+        }
+
+            .anuncio-card:hover {
+                border-color: rgba(201,168,76,.5);
+                transform: translateY(-3px);
+            }
+
+        .anuncio-card-img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            filter: brightness(.8);
+            display: block;
+        }
+
+        .anuncio-card-body {
+            padding: 14px 16px;
+        }
+
+        .anuncio-card-titulo {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            color: #fff;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .anuncio-card-meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+            .anuncio-card-meta span {
+                font-size: .72rem;
+                color: #888;
+                background: #111;
+                padding: 2px 8px;
+                border-radius: 3px;
+            }
+
+        .anuncio-card-preco {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #c9a84c;
+        }
+
+        .perfil-empty {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            color: #888;
+        }
+
+            .perfil-empty a {
+                color: #c9a84c;
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+        @@media (max-width: 700px) {
+            .perfil-hero {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .perfil-badges {
+                justify-content: center;
+            }
+
+            .anuncios-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (max-width: 900px) {
+            .anuncios-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+}
+
+<div class="perfil-wrapper">
+    <div class="perfil-hero">
+        <img class="perfil-foto" src="@foto" alt="@Model.NomeCompleto" />
+        <div class="perfil-info">
+            <div class="perfil-nome">@Model.NomeCompleto</div>
+            <div class="perfil-email">@Model.Email</div>
+            <div class="perfil-badges">
+                @if (!string.IsNullOrEmpty(Model.Localizacao))
+                {
+                    <div class="perfil-badge">📍 <span>@Model.Localizacao</span></div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Telefone))
+                {
+                    <div class="perfil-badge">📞 <span>@Model.Telefone</span></div>
+                }
+                <div class="perfil-badge">🚗 <span>@Model.MeusAnuncios.Count anúncios</span></div>
+            </div>
+        </div>
+        <a asp-page="/Auth/EditarPerfil" class="btn-editar">✎ Editar Perfil</a>
+    </div>
+
+    <div class="perfil-section-title">Os meus <span>Anúncios</span></div>
+
+    @if (Model.MeusAnuncios.Any())
+    {
+        <div class="anuncios-grid">
+            @foreach (var a in Model.MeusAnuncios)
+            {
+                <a asp-page="/Auto/Detalhes" asp-route-id="@a.Id" class="anuncio-card">
+                    <img class="anuncio-card-img"
+                         src="https://images.unsplash.com/photo-1556189250-72ba954cfc2b?w=400&auto=format&fit=crop"
+                         alt="@a.Titulo" />
+                    <div class="anuncio-card-body">
+                        <div class="anuncio-card-titulo">@a.Titulo</div>
+                        <div class="anuncio-card-meta">
+                            <span>@a.Ano</span>
+                            @if (!string.IsNullOrEmpty(a.Combustivel))
+                            {
+                                <span>@a.Combustivel</span>
+                            }
+                            @if (a.Kilometragem.HasValue)
+                            {
+                                <span>@a.Kilometragem.Value.ToString("N0") km</span>
+                            }
+                        </div>
+                        <div class="anuncio-card-preco">€@a.Preco.ToString("N0")</div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="perfil-empty">
+            <p>Ainda não tens nenhum anúncio publicado.</p>
+            <a asp-page="/Auto/Vender">Publicar o primeiro anúncio →</a>
+        </div>
+    }
+</div>

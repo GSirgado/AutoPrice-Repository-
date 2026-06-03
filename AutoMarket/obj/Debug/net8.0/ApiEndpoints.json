@@ -208,5 +208,47 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AutoMarket.Controllers.PerfilController",
+    "Method": "ObterPerfil",
+    "RelativePath": "api/Perfil",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AutoMarket.Controllers.PerfilController",
+    "Method": "AtualizarPerfil",
+    "RelativePath": "api/Perfil",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "AutoMarket.Controllers.AtualizarPerfilDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AutoMarket.Controllers.UploadController",
+    "Method": "UploadFoto",
+    "RelativePath": "api/Upload/foto",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ficheiro",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
   }
 ]

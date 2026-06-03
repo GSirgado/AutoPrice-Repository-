@@ -1,0 +1,339 @@
+﻿@page
+@model AutoPrice.Pages.EditarPerfilModel
+
+@{
+    ViewData["Title"] = "Editar Perfil";
+    var nome = string.IsNullOrEmpty(Model.NomeCompleto) ? "User" : Model.NomeCompleto;
+    var fotoAtual = string.IsNullOrEmpty(Model.FotoUrl)
+        ? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(nome) + "&background=c9a84c&color=000&size=200"
+        : Model.FotoUrl;
+}
+
+@section Styles {
+    <style>
+        .editar-wrapper {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        .editar-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+            .editar-title span {
+                color: #c9a84c;
+            }
+
+        .editar-sub {
+            color: #888;
+            margin-bottom: 40px;
+        }
+
+        .editar-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 20px;
+        }
+
+        .editar-section-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #c9a84c;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .foto-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .foto-preview-wrap {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .foto-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #c9a84c;
+        }
+
+        .foto-upload-label {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: #c9a84c;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background .2s;
+        }
+
+            .foto-upload-label:hover {
+                background: #e0bc5a;
+            }
+
+        .foto-input {
+            display: none;
+        }
+
+        .foto-nome {
+            font-size: .8rem;
+            color: #888;
+            text-align: center;
+        }
+
+        .editar-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+            .form-group.full {
+                grid-column: 1 / -1;
+            }
+
+            .form-group label {
+                font-size: .78rem;
+                font-weight: 600;
+                color: #888;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .form-group input {
+                background: #111;
+                border: 1px solid #2a2a2a;
+                border-radius: 8px;
+                color: #fff;
+                font-family: 'Barlow', sans-serif;
+                font-size: .95rem;
+                padding: 12px 14px;
+                transition: border-color .2s;
+                box-sizing: border-box;
+                width: 100%;
+            }
+
+                .form-group input:focus {
+                    outline: none;
+                    border-color: #c9a84c;
+                }
+
+                .form-group input::placeholder {
+                    color: #444;
+                }
+
+                .form-group input:disabled {
+                    opacity: .5;
+                    cursor: not-allowed;
+                }
+
+        .pass-hint {
+            font-size: .75rem;
+            color: #555;
+            margin-top: 4px;
+        }
+
+        .editar-alert {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: .9rem;
+        }
+
+            .editar-alert.erro {
+                background: #2a1111;
+                border: 1px solid #c0392b;
+                color: #e74c3c;
+            }
+
+            .editar-alert.sucesso {
+                background: #112a1a;
+                border: 1px solid #27ae60;
+                color: #2ecc71;
+            }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .btn-guardar {
+            flex: 1;
+            background: #c9a84c;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Barlow Condensed', sans-serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+            .btn-guardar:hover {
+                background: #e0bc5a;
+            }
+
+        .btn-cancelar {
+            background: transparent;
+            border: 1px solid #2a2a2a;
+            color: #888;
+            border-radius: 8px;
+            padding: 16px 24px;
+            font-size: .9rem;
+            font-weight: 600;
+            font-family: 'Barlow', sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: all .2s;
+        }
+
+            .btn-cancelar:hover {
+                border-color: #c0392b;
+                color: #c0392b;
+            }
+
+        @@media (max-width: 600px) {
+            .editar-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .editar-card {
+                padding: 24px;
+            }
+
+            .btn-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+}
+
+<div class="editar-wrapper">
+    <h1 class="editar-title">Editar <span>Perfil</span></h1>
+    <p class="editar-sub">Atualiza as tuas informações pessoais.</p>
+
+    @if (!string.IsNullOrEmpty(Model.Sucesso))
+    {
+        <div class="editar-alert sucesso">✓ @Model.Sucesso</div>
+    }
+    @if (!string.IsNullOrEmpty(Model.Erro))
+    {
+        <div class="editar-alert erro">✕ @Model.Erro</div>
+    }
+
+    <form method="post" enctype="multipart/form-data">
+
+        <div class="editar-card">
+            <div class="editar-section-title">Foto de Perfil</div>
+            <div class="foto-section">
+                <div class="foto-preview-wrap">
+                    <img id="foto-preview" class="foto-preview"
+                         src="@fotoAtual" alt="Foto de perfil" />
+                    <label class="foto-upload-label" for="foto-input" title="Alterar foto">✎</label>
+                    <input type="file" id="foto-input" name="FotoFicheiro"
+                           class="foto-input" accept="image/jpeg,image/png,image/webp"
+                           onchange="previewFoto(this)" />
+                </div>
+                <span id="foto-nome" class="foto-nome">Clica no ícone para alterar a foto</span>
+                <span class="foto-nome">JPG, PNG ou WEBP · Máximo 5MB</span>
+            </div>
+        </div>
+
+        <div class="editar-card">
+            <div class="editar-section-title">Informações Pessoais</div>
+            <div class="editar-grid">
+                <div class="form-group full">
+                    <label>Nome Completo</label>
+                    <input type="text" asp-for="NomeCompleto" placeholder="" />
+                </div>
+                <div class="form-group full">
+                    <label>Email</label>
+                    <input type="email" value="@Model.Email" disabled />
+                </div>
+                <div class="form-group">
+                    <label>Telefone</label>
+                    <input type="tel" asp-for="Telefone" placeholder="9XXXXXXXX" />
+                </div>
+                <div class="form-group">
+                    <label>Localização</label>
+                    <input type="text" asp-for="Localizacao" placeholder="Ex: Lisboa" />
+                </div>
+            </div>
+        </div>
+
+        <div class="editar-card">
+            <div class="editar-section-title">Alterar Password</div>
+            <div class="editar-grid">
+                <div class="form-group full">
+                    <label>Password Atual</label>
+                    <input type="password" asp-for="PasswordAtual"
+                           placeholder="Obrigatório para alterar a password" />
+                    <span class="pass-hint">Deixa em branco se não queres alterar a password.</span>
+                </div>
+                <div class="form-group">
+                    <label>Nova Password</label>
+                    <input type="password" asp-for="NovaPassword" placeholder="Mínimo 6 caracteres" />
+                </div>
+                <div class="form-group">
+                    <label>Confirmar Nova Password</label>
+                    <input type="password" asp-for="ConfirmarPassword" placeholder="Repetir nova password" />
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <a asp-page="/Perfil" class="btn-cancelar">Cancelar</a>
+            <button type="submit" class="btn-guardar">Guardar Alterações</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function previewFoto(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('foto-preview').src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+            document.getElementById('foto-nome').textContent = input.files[0].name;
+        }
+    }
+</script>

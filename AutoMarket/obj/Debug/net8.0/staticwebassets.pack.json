@@ -1,0 +1,29 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\guisi\\source\\repos\\AutoPrice-Repository-\\AutoMarket\\wwwroot\\uploads\\fotos\\6a83f497-cd89-4ec5-a387-6c2397c647c7.png",
+      "PackagePath": "staticwebassets\\uploads\\fotos\\6a83f497-cd89-4ec5-a387-6c2397c647c7.png"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.AutoMarket.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.AutoMarket.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.AutoMarket.props",
+      "PackagePath": "build\\AutoMarket.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.AutoMarket.props",
+      "PackagePath": "buildMultiTargeting\\AutoMarket.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.AutoMarket.props",
+      "PackagePath": "buildTransitive\\AutoMarket.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
