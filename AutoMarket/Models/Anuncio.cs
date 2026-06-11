@@ -6,6 +6,7 @@
         public string Titulo { get; set; } = string.Empty;
         public string Marca { get; set; } = string.Empty;
         public string Modelo { get; set; } = string.Empty;
+        public string? VendedorId { get; set; }
         public int Ano { get; set; }
         public decimal Preco { get; set; }
         public int? Kilometragem { get; set; }

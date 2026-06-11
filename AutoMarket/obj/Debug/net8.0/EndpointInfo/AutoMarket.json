@@ -46,6 +46,18 @@
         }
       }
     },
+    "/api/Anuncios/meus": {
+      "get": {
+        "tags": [
+          "Anuncios"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Anuncios/{id}": {
       "get": {
         "tags": [
@@ -443,6 +455,10 @@
             "nullable": true
           },
           "modelo": {
+            "type": "string",
+            "nullable": true
+          },
+          "vendedorId": {
             "type": "string",
             "nullable": true
           },

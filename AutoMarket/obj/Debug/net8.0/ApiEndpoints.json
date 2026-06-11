@@ -79,6 +79,16 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "AutoMarket.Controllers.AnunciosController",
+    "Method": "MeusAnuncios",
+    "RelativePath": "api/Anuncios/meus",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "AutoMarket.Controllers.AuthController",
     "Method": "Login",
     "RelativePath": "api/Auth/login",
