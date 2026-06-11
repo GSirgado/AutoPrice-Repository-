@@ -7,6 +7,65 @@
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
+    <style>
+        .nav-dropdown {
+            position: relative;
+        }
+
+            .nav-dropdown > a {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                cursor: pointer;
+            }
+
+                .nav-dropdown > a::after {
+                    content: '▾';
+                    font-size: .7rem;
+                    transition: transform .2s;
+                }
+
+            .nav-dropdown.open > a::after {
+                transform: rotate(180deg);
+            }
+
+        .nav-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            min-width: 160px;
+            overflow: hidden;
+            z-index: 999;
+        }
+
+        .nav-dropdown.open .nav-dropdown-menu {
+            display: block;
+        }
+
+        .nav-dropdown-menu a {
+            display: block;
+            padding: 12px 18px;
+            color: #ccc;
+            text-decoration: none;
+            font-size: .9rem;
+            transition: background .15s, color .15s;
+            white-space: nowrap;
+        }
+
+            .nav-dropdown-menu a:hover {
+                background: #2a2a2a;
+                color: #c9a84c;
+            }
+
+            .nav-dropdown-menu a + a {
+                border-top: 1px solid #2a2a2a;
+            }
+    </style>
 </head>
 <body>
     <!-- NAV -->
@@ -14,8 +73,24 @@
         <a asp-page="/Index"><img class="logo" src="~/img/Logo_AP.png" /></a>
         <div class="nav-links">
             <a asp-page="/Auto/Catalogo">Comprar</a>
-            <a asp-page="/Auto/Vender">Vender</a>
-            <a asp-page="/Avaliar">Avaliar</a>
+
+            <!-- Vender dropdown -->
+            <div class="nav-dropdown" id="dropdown-vender">
+                <a href="#" onclick="toggleDropdown('dropdown-vender'); return false;">Vender</a>
+                <div class="nav-dropdown-menu">
+                    <a asp-page="/Auto/Vender" asp-route-tipo="Carro">🚗 Carros</a>
+                    <a asp-page="/Auto/Vender" asp-route-tipo="Mota">🏍️ Motas</a>
+                </div>
+            </div>
+
+            <!-- Avaliar dropdown -->
+            <div class="nav-dropdown" id="dropdown-avaliar">
+                <a href="#" onclick="toggleDropdown('dropdown-avaliar'); return false;">Avaliar</a>
+                <div class="nav-dropdown-menu">
+                    <a asp-page="/Avaliar" asp-route-tipo="Carro">🚗 Carros</a>
+                    <a asp-page="/Avaliar" asp-route-tipo="Mota">🏍️ Motas</a>
+                </div>
+            </div>
 
             @if (Context.Request.Cookies["token"] != null)
             {
@@ -24,7 +99,6 @@
                 var fotoSrc = string.IsNullOrEmpty(fotoUser)
                 ? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(nomeUser) + "&background=c9a84c&color=000&size=200"
                 : fotoUser;
-
                 <a asp-page="/Auth/Perfil">
                     <img src="@fotoSrc" class="user-icon" title="@nomeUser" />
                 </a>
@@ -37,9 +111,7 @@
             }
         </div>
     </nav>
-
     @RenderBody()
-
     <!-- FOOTER -->
     <footer>
         <div class="footer-nav">
@@ -56,6 +128,26 @@
             &copy; 2026 AutoPrice. Todos os direitos reservados.
         </div>
     </footer>
+
+    <script>
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            const isOpen = dropdown.classList.contains('open');
+
+            // Fecha todos os dropdowns
+            document.querySelectorAll('.nav-dropdown').forEach(d => d.classList.remove('open'));
+
+            // Abre o clicado se estava fechado
+            if (!isOpen) dropdown.classList.add('open');
+        }
+
+        // Fecha ao clicar fora
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.nav-dropdown')) {
+                document.querySelectorAll('.nav-dropdown').forEach(d => d.classList.remove('open'));
+            }
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

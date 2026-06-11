@@ -23,6 +23,7 @@ namespace AutoPrice.Pages
         [BindProperty] public string? Condicao { get; set; }
         [BindProperty] public string? Localizacao { get; set; }
         [BindProperty] public int CategoriaId { get; set; }
+        [BindProperty] public string Tipo { get; set; } = "Carro";
 
         public List<CategoriaItem> Categorias { get; set; } = new();
         public string? Erro { get; set; }
@@ -33,21 +34,40 @@ namespace AutoPrice.Pages
             _clientFactory = clientFactory;
         }
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(
+            string? marca, string? modelo, int? ano,
+            decimal? preco, string? combustivel,
+            string? transmissao, string? condicao,
+            string? tipo)
         {
-            await CarregarCategorias();
+            var token = Request.Cookies["token"];
+            if (string.IsNullOrEmpty(token))
+                return RedirectToPage("/Auth/Login");
+
+            Tipo = tipo ?? "Carro";
+
+            if (marca != null) Marca = marca;
+            if (modelo != null) Modelo = modelo;
+            if (ano.HasValue) Ano = ano.Value;
+            if (preco.HasValue) Preco = preco.Value;
+            if (combustivel != null) Combustivel = combustivel;
+            if (transmissao != null) Transmissao = transmissao;
+            if (condicao != null) Condicao = condicao;
+
+            if (!string.IsNullOrEmpty(marca) && !string.IsNullOrEmpty(modelo) && ano.HasValue)
+                Titulo = $"{marca} {modelo} {ano}";
+
+            await CarregarCategorias(Tipo);
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // Verificar se o utilizador está autenticado
             var token = Request.Cookies["token"];
             if (string.IsNullOrEmpty(token))
-            {
                 return RedirectToPage("/Auth/Login");
-            }
 
-            await CarregarCategorias();
+            await CarregarCategorias(Tipo);
 
             var client = _clientFactory.CreateClient("AutoMarketAPI");
             client.DefaultRequestHeaders.Authorization =
@@ -90,7 +110,7 @@ namespace AutoPrice.Pages
             }
         }
 
-        private async Task CarregarCategorias()
+        private async Task CarregarCategorias(string tipo)
         {
             try
             {
@@ -100,8 +120,21 @@ namespace AutoPrice.Pages
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    Categorias = JsonSerializer.Deserialize<List<CategoriaItem>>(json,
+                    var todas = JsonSerializer.Deserialize<List<CategoriaItem>>(json,
                         new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
+
+                    if (tipo == "Mota")
+                        Categorias = todas.Where(c =>
+                            c.Nome.Contains("Mota") ||
+                            c.Nome.Contains("Scooter") ||
+                            c.Nome.Contains("Quad") ||
+                            c.Nome.Contains("Minimoto")).ToList();
+                    else
+                        Categorias = todas.Where(c =>
+                            !c.Nome.Contains("Mota") &&
+                            !c.Nome.Contains("Scooter") &&
+                            !c.Nome.Contains("Quad") &&
+                            !c.Nome.Contains("Minimoto")).ToList();
                 }
             }
             catch (Exception ex)
