@@ -27,7 +27,6 @@ namespace AutoMarket.Controllers
             _config = config;
         }
 
-        // POST api/auth/register
         [HttpPost("register")]
         public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto dto)
         {
@@ -43,7 +42,10 @@ namespace AutoMarket.Controllers
 
             var resultado = await _userManager.CreateAsync(user, dto.Password);
             if (!resultado.Succeeded)
-                return BadRequest(new { erros = resultado.Errors.Select(e => e.Description) });
+            {
+                var errosTraduzidos = resultado.Errors.Select(e => TraduzirErro(e.Code, e.Description));
+                return BadRequest(new { erros = errosTraduzidos });
+            }
 
             var token = GerarToken(user);
             return Ok(new AuthResponseDto
@@ -53,6 +55,23 @@ namespace AutoMarket.Controllers
                 NomeCompleto = user.NomeCompleto,
                 Expiracao = DateTime.UtcNow.AddHours(1)
             });
+        }
+
+        private string TraduzirErro(string codigo, string mensagemOriginal)
+        {
+            return codigo switch
+            {
+                "PasswordTooShort" => "A password deve ter pelo menos 6 caracteres.",
+                "PasswordRequiresNonAlphanumeric" => "A password deve conter pelo menos um caractere especial (ex: !@#$%).",
+                "PasswordRequiresDigit" => "A password deve conter pelo menos um número.",
+                "PasswordRequiresUpper" => "A password deve conter pelo menos uma letra maiúscula.",
+                "PasswordRequiresLower" => "A password deve conter pelo menos uma letra minúscula.",
+                "DuplicateUserName" => "Este email já está registado.",
+                "DuplicateEmail" => "Este email já está registado.",
+                "InvalidEmail" => "O email inserido não é válido.",
+                "InvalidUserName" => "O nome de utilizador contém caracteres inválidos.",
+                _ => mensagemOriginal
+            };
         }
 
         // POST api/auth/login

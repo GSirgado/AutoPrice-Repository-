@@ -1,6 +1,7 @@
 ﻿using AutoMarket.Data;
 using AutoMarket.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -12,10 +13,12 @@ namespace AutoMarket.Controllers
     public class AnunciosController : ControllerBase
     {
         private readonly AppDbContext _db;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AnunciosController(AppDbContext db)
+        public AnunciosController(AppDbContext db, UserManager<ApplicationUser> userManager)
         {
             _db = db;
+            _userManager = userManager;
         }
 
         // GET api/anuncios
@@ -65,7 +68,31 @@ namespace AutoMarket.Controllers
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (anuncio == null) return NotFound();
-            return Ok(anuncio);
+
+            string? nomeVendedor = null;
+            if (!string.IsNullOrEmpty(anuncio.VendedorId))
+            {
+                var vendedor = await _userManager.FindByIdAsync(anuncio.VendedorId);
+                nomeVendedor = vendedor?.NomeCompleto;
+            }
+
+            return Ok(new
+            {
+                anuncio.Id,
+                anuncio.Titulo,
+                anuncio.Descricao,
+                anuncio.Marca,
+                anuncio.Modelo,
+                anuncio.Ano,
+                anuncio.Preco,
+                anuncio.Kilometragem,
+                anuncio.Combustivel,
+                anuncio.Condicao,
+                anuncio.CategoriaId,
+                anuncio.Categoria,
+                anuncio.VendedorId,
+                VendedorNome = nomeVendedor
+            });
         }
 
         // POST api/anuncios
@@ -73,7 +100,6 @@ namespace AutoMarket.Controllers
         [Authorize]
         public async Task<IActionResult> Criar([FromBody] Anuncio anuncio)
         {
-            // Guardar o ID do utilizador autenticado como vendedor
             anuncio.VendedorId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             _db.Anuncios.Add(anuncio);
@@ -89,7 +115,6 @@ namespace AutoMarket.Controllers
             var anuncio = await _db.Anuncios.FindAsync(id);
             if (anuncio == null) return NotFound();
 
-            // Só o dono pode editar
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (anuncio.VendedorId != userId)
                 return Forbid();
@@ -117,7 +142,6 @@ namespace AutoMarket.Controllers
             var anuncio = await _db.Anuncios.FindAsync(id);
             if (anuncio == null) return NotFound();
 
-            // Só o dono pode eliminar
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (anuncio.VendedorId != userId)
                 return Forbid();
