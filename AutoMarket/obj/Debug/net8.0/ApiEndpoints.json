@@ -1,5 +1,99 @@
 [
   {
+    "ContainingType": "AutoMarket.Controllers.AdminController",
+    "Method": "GetAnuncios",
+    "RelativePath": "api/admin/anuncios",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AutoMarket.Controllers.AdminController",
+    "Method": "EditarAnuncio",
+    "RelativePath": "api/admin/anuncios/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "AutoMarket.Controllers.EditarAnuncioRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AutoMarket.Controllers.AdminController",
+    "Method": "EliminarAnuncio",
+    "RelativePath": "api/admin/anuncios/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AutoMarket.Controllers.AdminController",
+    "Method": "GetUtilizadores",
+    "RelativePath": "api/admin/utilizadores",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AutoMarket.Controllers.AdminController",
+    "Method": "EditarUtilizador",
+    "RelativePath": "api/admin/utilizadores/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "AutoMarket.Controllers.EditarUtilizadorRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AutoMarket.Controllers.AdminController",
+    "Method": "EliminarUtilizador",
+    "RelativePath": "api/admin/utilizadores/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "AutoMarket.Controllers.AnunciosController",
     "Method": "Listar",
     "RelativePath": "api/Anuncios",

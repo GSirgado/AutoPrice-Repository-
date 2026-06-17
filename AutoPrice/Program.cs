@@ -1,29 +1,36 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddHttpClient("AutoMarketAPI", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ApiUrl"]!);
 });
 
+// NOVO: autenticação por cookie para o User.IsInRole funcionar
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Auth/Login";
+        options.AccessDeniedPath = "/Auth/Login";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    });
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
+app.UseAuthentication();   // <-- TEM de vir antes do UseAuthorization
 app.UseAuthorization();
 
 app.MapRazorPages();
-
 app.Run();

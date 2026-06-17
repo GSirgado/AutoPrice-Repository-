@@ -104,6 +104,7 @@ namespace AutoMarket.Controllers
             anuncio.Combustivel = dados.Combustivel;
             anuncio.Condicao = dados.Condicao;
             anuncio.CategoriaId = dados.CategoriaId;
+            anuncio.ImagemUrl = dados.ImagemUrl;   
 
             await _db.SaveChangesAsync();
             return NoContent();

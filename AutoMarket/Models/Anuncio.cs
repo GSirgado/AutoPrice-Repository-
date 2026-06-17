@@ -13,8 +13,7 @@
         public string? Descricao { get; set; }
         public string? Combustivel { get; set; }
         public string? Condicao { get; set; }
-
-        // Relação muitos-para-um com Categoria
+        public string? ImagemUrl { get; set; }   // NOVO
         public int CategoriaId { get; set; }
         public Categoria? Categoria { get; set; }
     }

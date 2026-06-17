@@ -1,12 +1,10 @@
 ﻿@page
 @model IndexModel
-
 @{
     ViewData["Title"] = "AutoPrice - Novidades e Descontos Imperdíveis";
 }
-
 @section Styles {
-        <link rel="stylesheet" href="~/css/index.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/index.css" asp-append-version="true" />
 }
 
 <!-- HERO -->
@@ -62,9 +60,10 @@
         {
             @foreach (var anuncio in Model.Destaques)
             {
+                var fallback = "https://images.unsplash.com/photo-1556189250-72ba954cfc2b?w=400&auto=format&fit=crop";
                 <a href="/Auto/Detalhes/@anuncio.Id" class="vehicle-card">
                     <div class="vehicle-img-wrap">
-                        <img src="https://images.unsplash.com/photo-1556189250-72ba954cfc2b?w=400&auto=format&fit=crop"
+                        <img src="@(string.IsNullOrEmpty(anuncio.ImagemUrl) ? fallback : anuncio.ImagemUrl)"
                              alt="@anuncio.Titulo" />
                     </div>
                     <div class="vehicle-body">

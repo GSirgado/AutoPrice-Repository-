@@ -24,6 +24,7 @@ namespace AutoPrice.Pages
         [BindProperty] public string? Localizacao { get; set; }
         [BindProperty] public int CategoriaId { get; set; }
         [BindProperty] public string Tipo { get; set; } = "Carro";
+        [BindProperty] public string? ImagemUrl { get; set; }
 
         public List<CategoriaItem> Categorias { get; set; } = new();
         public string? Erro { get; set; }
@@ -88,7 +89,8 @@ namespace AutoPrice.Pages
                 potencia = Potencia,
                 condicao = Condicao,
                 localizacao = Localizacao,
-                categoriaId = CategoriaId
+                categoriaId = CategoriaId,
+                imagemUrl = ImagemUrl
             };
 
             var content = new StringContent(

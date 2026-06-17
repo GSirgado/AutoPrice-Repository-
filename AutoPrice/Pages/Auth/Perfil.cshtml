@@ -6,6 +6,7 @@
     var foto = string.IsNullOrEmpty(Model.FotoUrl)
         ? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(Model.NomeCompleto) + "&background=c9a84c&color=000&size=200"
         : Model.FotoUrl;
+    var isAdmin = User.IsInRole("Admin");
 }
 
 @section Styles {
@@ -76,6 +77,13 @@
                 color: #c9a84c;
             }
 
+        .perfil-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
         .btn-editar {
             background: transparent;
             border: 1px solid #c9a84c;
@@ -89,11 +97,33 @@
             transition: all .2s;
             text-decoration: none;
             white-space: nowrap;
+            text-align: center;
         }
 
             .btn-editar:hover {
                 background: #c9a84c;
                 color: #000;
+            }
+
+        .btn-admin {
+            background: rgba(230,57,70,.1);
+            border: 1px solid rgba(230,57,70,.4);
+            color: #e63946;
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-family: 'Barlow', sans-serif;
+            font-size: .9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            text-decoration: none;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+            .btn-admin:hover {
+                background: #e63946;
+                color: #fff;
             }
 
         .perfil-section-title {
@@ -201,6 +231,12 @@
                 justify-content: center;
             }
 
+            .perfil-btns {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
             .anuncios-grid {
                 grid-template-columns: 1fr;
             }
@@ -215,6 +251,8 @@
 }
 
 <div class="perfil-wrapper">
+
+    <!-- HERO -->
     <div class="perfil-hero">
         <img class="perfil-foto" src="@foto" alt="@Model.NomeCompleto" />
         <div class="perfil-info">
@@ -230,11 +268,22 @@
                     <div class="perfil-badge">📞 <span>@Model.Telefone</span></div>
                 }
                 <div class="perfil-badge">🚗 <span>@Model.MeusAnuncios.Count anúncios</span></div>
+                @if (isAdmin)
+                {
+                    <div class="perfil-badge">🛡️ <span>Administrador</span></div>
+                }
             </div>
         </div>
-        <a asp-page="/Auth/EditarPerfil" class="btn-editar">✎ Editar Perfil</a>
+        <div class="perfil-btns">
+            <a asp-page="/Auth/EditarPerfil" class="btn-editar">✎ Editar Perfil</a>
+            @if (isAdmin)
+            {
+                <a asp-page="/Admin/Gerir" class="btn-admin">⚙ Painel Admin</a>
+            }
+        </div>
     </div>
 
+    <!-- ANÚNCIOS -->
     <div class="perfil-section-title">Os meus <span>Anúncios</span></div>
 
     @if (Model.MeusAnuncios.Any())
@@ -242,12 +291,11 @@
         <div class="anuncios-grid">
             @foreach (var a in Model.MeusAnuncios)
             {
+                var fallback = "https://images.unsplash.com/photo-1556189250-72ba954cfc2b?w=400&auto=format&fit=crop";
                 <a asp-page="/Auto/Detalhes" asp-route-id="@a.Id" class="anuncio-card">
-                    <img class="anuncio-card-img"
-                         src="https://images.unsplash.com/photo-1556189250-72ba954cfc2b?w=400&auto=format&fit=crop"
-                         alt="@a.Titulo" />
+                    <img class="anuncio-card-img" src="@fallback" alt="@a.Marca @a.Modelo" />
                     <div class="anuncio-card-body">
-                        <div class="anuncio-card-titulo">@a.Titulo</div>
+                        <div class="anuncio-card-titulo">@a.Marca @a.Modelo</div>
                         <div class="anuncio-card-meta">
                             <span>@a.Ano</span>
                             @if (!string.IsNullOrEmpty(a.Combustivel))
@@ -257,6 +305,10 @@
                             @if (a.Kilometragem.HasValue)
                             {
                                 <span>@a.Kilometragem.Value.ToString("N0") km</span>
+                            }
+                            @if (!string.IsNullOrEmpty(a.Categoria))
+                            {
+                                <span>@a.Categoria</span>
                             }
                         </div>
                         <div class="anuncio-card-preco">€@a.Preco.ToString("N0")</div>
@@ -272,4 +324,5 @@
             <a asp-page="/Auto/Vender">Publicar o primeiro anúncio →</a>
         </div>
     }
+
 </div>

@@ -28,6 +28,29 @@ namespace AutoMarket.Controllers
         }
 
         // POST api/auth/register
+        [HttpPost("login")]
+        public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto dto)
+        {
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null)
+                return Unauthorized(new { mensagem = "Credenciais inválidas." });
+
+            var resultado = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
+            if (!resultado.Succeeded)
+                return Unauthorized(new { mensagem = "Credenciais inválidas." });
+
+            var roles = await _userManager.GetRolesAsync(user); // ← buscar roles
+            var token = GerarToken(user, roles);
+
+            return Ok(new AuthResponseDto
+            {
+                Token = token,
+                Email = user.Email!,
+                NomeCompleto = user.NomeCompleto,
+                Expiracao = DateTime.UtcNow.AddHours(1)
+            });
+        }
+
         [HttpPost("register")]
         public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto dto)
         {
@@ -45,7 +68,9 @@ namespace AutoMarket.Controllers
             if (!resultado.Succeeded)
                 return BadRequest(new { erros = resultado.Errors.Select(e => e.Description) });
 
-            var token = GerarToken(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            var token = GerarToken(user, roles);
+
             return Ok(new AuthResponseDto
             {
                 Token = token,
@@ -55,40 +80,22 @@ namespace AutoMarket.Controllers
             });
         }
 
-        // POST api/auth/login
-        [HttpPost("login")]
-        public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto dto)
-        {
-            var user = await _userManager.FindByEmailAsync(dto.Email);
-            if (user == null)
-                return Unauthorized(new { mensagem = "Credenciais inválidas." });
-
-            var resultado = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
-            if (!resultado.Succeeded)
-                return Unauthorized(new { mensagem = "Credenciais inválidas." });
-
-            var token = GerarToken(user);
-            return Ok(new AuthResponseDto
-            {
-                Token = token,
-                Email = user.Email!,
-                NomeCompleto = user.NomeCompleto,
-                Expiracao = DateTime.UtcNow.AddHours(1)
-            });
-        }
-
-        private string GerarToken(ApplicationUser user)
+        private string GerarToken(ApplicationUser user, IList<string> roles)
         {
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_config["JwtSettings:SecretKey"]!));
             var credenciais = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Email, user.Email!),
-                new Claim(ClaimTypes.Name, user.NomeCompleto)
-            };
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.Id),
+        new Claim(ClaimTypes.Email, user.Email!),
+        new Claim(ClaimTypes.Name, user.NomeCompleto)
+    };
+
+            // Adicionar roles como claims
+            foreach (var role in roles)
+                claims.Add(new Claim("role", role));
 
             var token = new JwtSecurityToken(
                 issuer: _config["JwtSettings:Issuer"],

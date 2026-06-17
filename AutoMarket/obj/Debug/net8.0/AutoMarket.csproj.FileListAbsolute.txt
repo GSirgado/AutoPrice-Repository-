@@ -426,10 +426,10 @@ C:\Users\joaom\Source\Repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\st
 C:\Users\joaom\Source\Repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\joaom\Source\Repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\joaom\Source\Repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\joaom\Source\Repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\joaom\Source\Repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.csproj.Up2Date
 C:\Users\joaom\Source\Repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.dll
 C:\Users\joaom\Source\Repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\refint\AutoMarket.dll
 C:\Users\joaom\Source\Repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.pdb
 C:\Users\joaom\Source\Repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\AutoMarket.genruntimeconfig.cache
 C:\Users\joaom\Source\Repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\ref\AutoMarket.dll
+C:\Users\joaom\Source\Repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

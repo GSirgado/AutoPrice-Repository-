@@ -40,7 +40,8 @@ namespace AutoPrice.Pages
                         Combustivel = a.Combustivel,
                         Condicao = a.Condicao,
                         Kilometragem = a.Kilometragem,
-                        Tipo = a.Categoria?.Nome ?? "Carro"
+                        Tipo = a.Categoria?.Nome ?? "Carro",
+                        ImagemPath = a.ImagemUrl,             
                     }).ToList() ?? new();
                 }
             }
@@ -63,6 +64,7 @@ namespace AutoPrice.Pages
         public int? Kilometragem { get; set; }
         public string? Combustivel { get; set; }
         public string? Condicao { get; set; }
+        public string? ImagemUrl { get; set; }  
         public CategoriaApiDto? Categoria { get; set; }
     }
 

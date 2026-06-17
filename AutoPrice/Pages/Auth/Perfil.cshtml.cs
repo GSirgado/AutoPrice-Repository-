@@ -35,7 +35,6 @@ namespace AutoPrice.Pages
             {
                 var json = await responsePerfil.Content.ReadAsStringAsync();
                 var perfil = JsonSerializer.Deserialize<JsonElement>(json);
-
                 NomeCompleto = perfil.GetProperty("nomeCompleto").GetString() ?? "";
                 Email = perfil.GetProperty("email").GetString() ?? "";
                 Telefone = perfil.TryGetProperty("phoneNumber", out var tel) ? tel.GetString() : null;
@@ -61,10 +60,14 @@ namespace AutoPrice.Pages
         public string Titulo { get; set; } = string.Empty;
         public string Marca { get; set; } = string.Empty;
         public string Modelo { get; set; } = string.Empty;
+        public string? VendedorId { get; set; }
         public int Ano { get; set; }
         public decimal Preco { get; set; }
+        public int? Kilometragem { get; set; }
+        public string? Descricao { get; set; }
         public string? Combustivel { get; set; }
         public string? Condicao { get; set; }
-        public int? Kilometragem { get; set; }
+        public int? CategoriaId { get; set; }
+        public string? Categoria { get; set; }
     }
 }

@@ -60,12 +60,6 @@
             gap: 16px;
         }
 
-        .vender-grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 16px;
-        }
-
         .form-group {
             display: flex;
             flex-direction: column;
@@ -119,6 +113,86 @@
             .form-group select option {
                 background: #1a1a1a;
             }
+
+        /* Upload de imagem */
+        .upload-area {
+            border: 2px dashed #2a2a2a;
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .2s, background .2s;
+            position: relative;
+        }
+
+            .upload-area:hover {
+                border-color: #c9a84c;
+                background: rgba(201,168,76,.05);
+            }
+
+            .upload-area input[type="file"] {
+                position: absolute;
+                inset: 0;
+                opacity: 0;
+                cursor: pointer;
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                border: none;
+            }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .upload-text {
+            color: #888;
+            font-size: .9rem;
+        }
+
+            .upload-text span {
+                color: #c9a84c;
+                font-weight: 600;
+            }
+
+        .upload-preview {
+            display: none;
+            margin-top: 16px;
+            position: relative;
+        }
+
+            .upload-preview img {
+                width: 100%;
+                max-height: 240px;
+                object-fit: cover;
+                border-radius: 8px;
+                border: 1px solid #2a2a2a;
+            }
+
+        .upload-preview-remove {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0,0,0,.7);
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-size: .85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-loading {
+            display: none;
+            color: #c9a84c;
+            font-size: .85rem;
+            margin-top: 8px;
+        }
 
         .vender-alert {
             padding: 14px 18px;
@@ -180,7 +254,7 @@
             }
 
         @@media (max-width: 600px) {
-            .vender-grid, .vender-grid-3 {
+            .vender-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -212,8 +286,31 @@
         </div>
     }
 
-    <form method="post">
+    <form method="post" id="formVender">
+        <!-- Campo hidden para a URL da imagem -->
+        <input type="hidden" asp-for="ImagemUrl" id="imagemUrl" />
+        <input type="hidden" asp-for="Tipo" />
+
         <div class="vender-card">
+
+            <!-- FOTO DO VEÍCULO -->
+            <div class="vender-section">
+                <div class="vender-section-title">Foto do Veículo</div>
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="ficheiro" accept="image/jpeg,image/png,image/webp"
+                           onchange="uploadImagem(this)" />
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">
+                        Clica para selecionar uma foto<br />
+                        <span>JPG, PNG ou WEBP</span> — máximo 5MB
+                    </div>
+                </div>
+                <div class="upload-loading" id="uploadLoading">⏳ A fazer upload...</div>
+                <div class="upload-preview" id="uploadPreview">
+                    <img id="previewImg" src="" alt="Preview" />
+                    <button type="button" class="upload-preview-remove" onclick="removerImagem()">✕</button>
+                </div>
+            </div>
 
             <!-- INFORMAÇÕES GERAIS -->
             <div class="vender-section">
@@ -344,3 +441,67 @@
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <script>
+        async function uploadImagem(input) {
+            if (!input.files || input.files.length === 0) return;
+
+            const file = input.files[0];
+            const token = getCookie('token');
+
+            if (!token) {
+                alert('Tens de iniciar sessão para fazer upload de imagens.');
+                return;
+            }
+
+            // Mostrar loading
+            document.getElementById('uploadLoading').style.display = 'block';
+            document.getElementById('uploadArea').style.pointerEvents = 'none';
+
+            try {
+                const formData = new FormData();
+                formData.append('ficheiro', file);
+
+                const response = await fetch('/api/Upload/foto', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Guardar URL no campo hidden
+                    document.getElementById('imagemUrl').value = data.url;
+
+                    // Mostrar preview
+                    document.getElementById('previewImg').src = data.url;
+                    document.getElementById('uploadPreview').style.display = 'block';
+                    document.getElementById('uploadArea').style.display = 'none';
+                } else {
+                    const err = await response.json();
+                    alert('Erro: ' + (err.mensagem || 'Erro ao fazer upload.'));
+                }
+            } catch (e) {
+                alert('Erro ao fazer upload da imagem.');
+            } finally {
+                document.getElementById('uploadLoading').style.display = 'none';
+                document.getElementById('uploadArea').style.pointerEvents = 'auto';
+            }
+        }
+
+        function removerImagem() {
+            document.getElementById('imagemUrl').value = '';
+            document.getElementById('previewImg').src = '';
+            document.getElementById('uploadPreview').style.display = 'none';
+            document.getElementById('uploadArea').style.display = 'block';
+            document.getElementById('ficheiro').value = '';
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+    </script>
+}

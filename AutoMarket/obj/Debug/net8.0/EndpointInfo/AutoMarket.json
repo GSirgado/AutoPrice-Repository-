@@ -5,6 +5,154 @@
     "version": "1.0"
   },
   "paths": {
+    "/api/admin/utilizadores": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/anuncios": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/utilizadores/{id}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditarUtilizadorRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditarUtilizadorRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditarUtilizadorRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/anuncios/{id}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditarAnuncioRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditarAnuncioRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditarAnuncioRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Anuncios": {
       "get": {
         "tags": [
@@ -142,7 +290,7 @@
         }
       }
     },
-    "/api/Auth/register": {
+    "/api/Auth/login": {
       "post": {
         "tags": [
           "Auth"
@@ -151,17 +299,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterDto"
+                "$ref": "#/components/schemas/LoginDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterDto"
+                "$ref": "#/components/schemas/LoginDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterDto"
+                "$ref": "#/components/schemas/LoginDto"
               }
             }
           }
@@ -190,7 +338,7 @@
         }
       }
     },
-    "/api/Auth/login": {
+    "/api/Auth/register": {
       "post": {
         "tags": [
           "Auth"
@@ -199,17 +347,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginDto"
+                "$ref": "#/components/schemas/RegisterDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginDto"
+                "$ref": "#/components/schemas/RegisterDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginDto"
+                "$ref": "#/components/schemas/RegisterDto"
               }
             }
           }
@@ -487,6 +635,10 @@
             "type": "string",
             "nullable": true
           },
+          "imagemUrl": {
+            "type": "string",
+            "nullable": true
+          },
           "categoriaId": {
             "type": "integer",
             "format": "int32"
@@ -574,6 +726,79 @@
         },
         "additionalProperties": false
       },
+      "EditarAnuncioRequest": {
+        "type": "object",
+        "properties": {
+          "titulo": {
+            "type": "string",
+            "nullable": true
+          },
+          "marca": {
+            "type": "string",
+            "nullable": true
+          },
+          "modelo": {
+            "type": "string",
+            "nullable": true
+          },
+          "ano": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "preco": {
+            "type": "number",
+            "format": "double"
+          },
+          "categoriaId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "kilometragem": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "descricao": {
+            "type": "string",
+            "nullable": true
+          },
+          "combustivel": {
+            "type": "string",
+            "nullable": true
+          },
+          "condicao": {
+            "type": "string",
+            "nullable": true
+          },
+          "imagemUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EditarUtilizadorRequest": {
+        "type": "object",
+        "properties": {
+          "nomeCompleto": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "localizacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "novaPassword": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "LoginDto": {
         "required": [
           "email",
@@ -617,6 +842,19 @@
         },
         "additionalProperties": false
       }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "Introduz o token JWT aqui",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT"
+      }
     }
-  }
+  },
+  "security": [
+    {
+      "Bearer": [ ]
+    }
+  ]
 }
