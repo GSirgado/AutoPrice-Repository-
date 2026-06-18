@@ -63,8 +63,31 @@ namespace AutoPrice.Pages.Auth
             }
             else
             {
-                var json = await response.Content.ReadAsStringAsync();
-                Erro = "Erro ao criar conta. O email pode já estar registado.";
+                var jsonErro = await response.Content.ReadAsStringAsync();
+
+                try
+                {
+                    var erroObj = JsonSerializer.Deserialize<JsonElement>(jsonErro);
+
+                    if (erroObj.TryGetProperty("erros", out var erros))
+                    {
+                        var listaErros = erros.EnumerateArray().Select(e => e.GetString()).ToList();
+                        Erro = string.Join(" ", listaErros);
+                    }
+                    else if (erroObj.TryGetProperty("mensagem", out var mensagem))
+                    {
+                        Erro = mensagem.GetString();
+                    }
+                    else
+                    {
+                        Erro = "Erro ao criar conta.";
+                    }
+                }
+                catch
+                {
+                    Erro = "Erro ao criar conta. O email pode já estar registado.";
+                }
+
                 return Page();
             }
         }
