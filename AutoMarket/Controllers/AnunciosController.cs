@@ -27,8 +27,34 @@ namespace AutoMarket.Controllers
         {
             var anuncios = await _db.Anuncios
                 .Include(a => a.Categoria)
+                .Include(a => a.Imagens)
                 .ToListAsync();
-            return Ok(anuncios);
+
+            // ✅ CORRIGIDO: devolver DTO sem referências circulares
+            // A API devolvia o objeto Anuncio diretamente, causando:
+            // - referências circulares (Anuncio → AnuncioImg → Anuncio)
+            // - campo "imagens" como lista de objetos {id, url, anuncioId}
+            //   em vez de lista de strings, partindo a deserialização no frontend
+            var resultado = anuncios.Select(a => new
+            {
+                a.Id,
+                a.Titulo,
+                a.Marca,
+                a.Modelo,
+                a.Ano,
+                a.Preco,
+                a.Kilometragem,
+                a.Combustivel,
+                a.Condicao,
+                a.Cor,
+                a.Transmissao,
+                a.Potencia,
+                a.CategoriaId,
+                Categoria = a.Categoria == null ? null : new { a.Categoria.Id, a.Categoria.Nome },
+                Imagens = a.Imagens.Select(i => new { i.Id, i.Url }).ToList()
+            });
+
+            return Ok(resultado);
         }
 
         // GET api/anuncios/meus
@@ -40,6 +66,7 @@ namespace AutoMarket.Controllers
 
             var anuncios = await _db.Anuncios
                 .Include(a => a.Categoria)
+                .Include(a => a.Imagens)
                 .Where(a => a.VendedorId == userId)
                 .OrderByDescending(a => a.Id)
                 .Select(a => new
@@ -52,7 +79,8 @@ namespace AutoMarket.Controllers
                     a.Preco,
                     a.Combustivel,
                     a.Condicao,
-                    a.Kilometragem
+                    a.Kilometragem,
+                    Imagens = a.Imagens.Select(i => i.Url).ToList()
                 })
                 .ToListAsync();
 
@@ -65,6 +93,7 @@ namespace AutoMarket.Controllers
         {
             var anuncio = await _db.Anuncios
                 .Include(a => a.Categoria)
+                .Include(a => a.Imagens)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (anuncio == null) return NotFound();
@@ -88,19 +117,65 @@ namespace AutoMarket.Controllers
                 anuncio.Kilometragem,
                 anuncio.Combustivel,
                 anuncio.Condicao,
+                anuncio.Cor,
+                anuncio.Transmissao,
+                anuncio.Potencia,
                 anuncio.CategoriaId,
                 anuncio.Categoria,
                 anuncio.VendedorId,
-                VendedorNome = nomeVendedor
+                VendedorNome = nomeVendedor,
+                Imagens = anuncio.Imagens.Select(i => i.Url).ToList()
             });
         }
 
         // POST api/anuncios
+        public class CriarAnuncioDto
+        {
+            public string Titulo { get; set; } = string.Empty;
+            public string Marca { get; set; } = string.Empty;
+            public string Modelo { get; set; } = string.Empty;
+            public int Ano { get; set; }
+            public decimal Preco { get; set; }
+            public int? Kilometragem { get; set; }
+            public string? Descricao { get; set; }
+            public string? Combustivel { get; set; }
+            public string? Condicao { get; set; }
+            public string? Cor { get; set; }
+            public string? Transmissao { get; set; }
+            public int? Potencia { get; set; }
+            public int CategoriaId { get; set; }
+            public List<string>? ImagensUrls { get; set; }
+        }
+
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Criar([FromBody] Anuncio anuncio)
+        public async Task<IActionResult> Criar([FromBody] CriarAnuncioDto dto)
         {
-            anuncio.VendedorId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var anuncio = new Anuncio
+            {
+                Titulo = dto.Titulo,
+                Marca = dto.Marca,
+                Modelo = dto.Modelo,
+                Ano = dto.Ano,
+                Preco = dto.Preco,
+                Kilometragem = dto.Kilometragem,
+                Descricao = dto.Descricao,
+                Combustivel = dto.Combustivel,
+                Condicao = dto.Condicao,
+                Cor = dto.Cor,
+                Transmissao = dto.Transmissao,
+                Potencia = dto.Potencia,
+                CategoriaId = dto.CategoriaId,
+                VendedorId = User.FindFirstValue(ClaimTypes.NameIdentifier)!
+            };
+
+            if (dto.ImagensUrls != null && dto.ImagensUrls.Any())
+            {
+                anuncio.Imagens = dto.ImagensUrls
+                    .Where(url => !string.IsNullOrWhiteSpace(url))
+                    .Select(url => new AnuncioImg { Url = url })
+                    .ToList();
+            }
 
             _db.Anuncios.Add(anuncio);
             await _db.SaveChangesAsync();
@@ -110,9 +185,12 @@ namespace AutoMarket.Controllers
         // PUT api/anuncios/5
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> Atualizar(int id, [FromBody] Anuncio dados)
+        public async Task<IActionResult> Atualizar(int id, [FromBody] CriarAnuncioDto dados)
         {
-            var anuncio = await _db.Anuncios.FindAsync(id);
+            var anuncio = await _db.Anuncios
+                .Include(a => a.Imagens)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
             if (anuncio == null) return NotFound();
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -128,8 +206,19 @@ namespace AutoMarket.Controllers
             anuncio.Descricao = dados.Descricao;
             anuncio.Combustivel = dados.Combustivel;
             anuncio.Condicao = dados.Condicao;
+            anuncio.Cor = dados.Cor;
+            anuncio.Transmissao = dados.Transmissao;
+            anuncio.Potencia = dados.Potencia;
             anuncio.CategoriaId = dados.CategoriaId;
-            anuncio.ImagemUrl = dados.ImagemUrl;   
+
+            if (dados.ImagensUrls != null)
+            {
+                _db.AnuncioImagens.RemoveRange(anuncio.Imagens);
+                anuncio.Imagens = dados.ImagensUrls
+                    .Where(url => !string.IsNullOrWhiteSpace(url))
+                    .Select(url => new AnuncioImg { Url = url })
+                    .ToList();
+            }
 
             await _db.SaveChangesAsync();
             return NoContent();

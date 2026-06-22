@@ -112,8 +112,8 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "anuncio",
-        "Type": "AutoMarket.Models.Anuncio",
+        "Name": "dto",
+        "Type": "AutoMarket.Controllers.AnunciosController\u002BCriarAnuncioDto",
         "IsRequired": true
       }
     ],
@@ -150,7 +150,7 @@
       },
       {
         "Name": "dados",
-        "Type": "AutoMarket.Models.Anuncio",
+        "Type": "AutoMarket.Controllers.AnunciosController\u002BCriarAnuncioDto",
         "IsRequired": true
       }
     ],

@@ -45,6 +45,7 @@ namespace AutoMarket.Controllers
         {
             var anuncios = await _context.Anuncios
                 .Include(a => a.Categoria)
+                .Include(a => a.Imagens)
                 .ToListAsync();
 
             var users = await _context.Users.ToDictionaryAsync(u => u.Id, u => u);
@@ -63,11 +64,11 @@ namespace AutoMarket.Controllers
                 a.Descricao,
                 a.Combustivel,
                 a.Condicao,
-                a.ImagemUrl,   // NOVO
+                Imagens = a.Imagens.Select(i => i.Url).ToList(),
                 VendedorNome = a.VendedorId != null && users.ContainsKey(a.VendedorId)
-        ? users[a.VendedorId].NomeCompleto : null,
+                    ? users[a.VendedorId].NomeCompleto : null,
                 VendedorEmail = a.VendedorId != null && users.ContainsKey(a.VendedorId)
-        ? users[a.VendedorId].Email : null
+                    ? users[a.VendedorId].Email : null
             });
 
             return Ok(resultado);
@@ -110,7 +111,10 @@ namespace AutoMarket.Controllers
         [HttpPut("anuncios/{id}")]
         public async Task<IActionResult> EditarAnuncio(int id, [FromBody] EditarAnuncioRequest req)
         {
-            var anuncio = await _context.Anuncios.FindAsync(id);
+            var anuncio = await _context.Anuncios
+                .Include(a => a.Imagens)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
             if (anuncio == null) return NotFound();
 
             anuncio.Titulo = req.Titulo;
@@ -123,7 +127,15 @@ namespace AutoMarket.Controllers
             anuncio.Descricao = req.Descricao;
             anuncio.Combustivel = req.Combustivel;
             anuncio.Condicao = req.Condicao;
-            anuncio.ImagemUrl = req.ImagemUrl;   // NOVO
+
+            if (req.ImagensUrls != null)
+            {
+                _context.AnuncioImagens.RemoveRange(anuncio.Imagens);
+                anuncio.Imagens = req.ImagensUrls
+                    .Where(url => !string.IsNullOrWhiteSpace(url))
+                    .Select(url => new AnuncioImg { Url = url })
+                    .ToList();
+            }
 
             await _context.SaveChangesAsync();
             return NoContent();
@@ -172,6 +184,6 @@ namespace AutoMarket.Controllers
         public string? Descricao { get; set; }
         public string? Combustivel { get; set; }
         public string? Condicao { get; set; }
-        public string? ImagemUrl { get; set; }   
+        public List<string>? ImagensUrls { get; set; }
     }
 }

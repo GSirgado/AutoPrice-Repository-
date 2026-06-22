@@ -13,8 +13,14 @@
         public string? Descricao { get; set; }
         public string? Combustivel { get; set; }
         public string? Condicao { get; set; }
-        public string? ImagemUrl { get; set; }   // NOVO
+        public string? Cor { get; set; }
+        public string? Transmissao { get; set; }
+        public int? Potencia { get; set; }
+
         public int CategoriaId { get; set; }
         public Categoria? Categoria { get; set; }
+
+        // Lista de imagens
+        public List<AnuncioImg> Imagens { get; set; } = new();
     }
 }

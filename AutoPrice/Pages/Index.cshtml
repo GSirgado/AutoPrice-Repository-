@@ -61,10 +61,13 @@
             @foreach (var anuncio in Model.Destaques)
             {
                 var fallback = "https://images.unsplash.com/photo-1556189250-72ba954cfc2b?w=400&auto=format&fit=crop";
+                var imagemPrincipal = (anuncio.Imagens != null && anuncio.Imagens.Any())
+                    ? anuncio.Imagens[0]
+                    : fallback;
+
                 <a href="/Auto/Detalhes/@anuncio.Id" class="vehicle-card">
                     <div class="vehicle-img-wrap">
-                        <img src="@(string.IsNullOrEmpty(anuncio.ImagemUrl) ? fallback : anuncio.ImagemUrl)"
-                             alt="@anuncio.Titulo" />
+                        <img src="@imagemPrincipal" alt="@anuncio.Titulo" />
                     </div>
                     <div class="vehicle-body">
                         <h4>@anuncio.Marca @anuncio.Modelo</h4>

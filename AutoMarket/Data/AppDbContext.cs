@@ -10,5 +10,6 @@ namespace AutoMarket.Data
 
         public DbSet<Anuncio> Anuncios { get; set; }
         public DbSet<Categoria> Categorias { get; set; }
+        public DbSet<AnuncioImg> AnuncioImagens { get; set; }
     }
 }

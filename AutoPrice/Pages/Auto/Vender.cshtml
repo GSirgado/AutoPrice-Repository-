@@ -7,6 +7,58 @@
 
 @section Styles {
     <style>
+
+        .upload-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .preview-item {
+            position: relative;
+            aspect-ratio: 1;
+        }
+
+            .preview-item img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 8px;
+                border: 1px solid #2a2a2a;
+            }
+
+        .preview-item-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0,0,0,.7);
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: .75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .preview-item-cover {
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            background: rgba(201,168,76,.9);
+            color: #000;
+            font-size: .65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
         .vender-wrapper {
             max-width: 800px;
             margin: 0 auto;
@@ -286,30 +338,27 @@
         </div>
     }
 
-    <form method="post" id="formVender">
-        <!-- Campo hidden para a URL da imagem -->
-        <input type="hidden" asp-for="ImagemUrl" id="imagemUrl" />
+    <form method="post" id="formVender" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="ImagensUrls" id="imagensUrls" />
         <input type="hidden" asp-for="Tipo" />
 
         <div class="vender-card">
 
-            <!-- FOTO DO VEÍCULO -->
+            <!-- FOTOS DO VEÍCULO -->
             <div class="vender-section">
-                <div class="vender-section-title">Foto do Veículo</div>
+                <div class="vender-section-title">Fotos do Veículo</div>
                 <div class="upload-area" id="uploadArea">
                     <input type="file" id="ficheiro" accept="image/jpeg,image/png,image/webp"
-                           onchange="uploadImagem(this)" />
+                           multiple onchange="uploadImagens(this)" />
                     <div class="upload-icon">📷</div>
                     <div class="upload-text">
-                        Clica para selecionar uma foto<br />
-                        <span>JPG, PNG ou WEBP</span> — máximo 5MB
+                        Clica para selecionar fotos (podes escolher várias)<br />
+                        <span>JPG, PNG ou WEBP</span> — máximo 5MB cada
                     </div>
                 </div>
                 <div class="upload-loading" id="uploadLoading">⏳ A fazer upload...</div>
-                <div class="upload-preview" id="uploadPreview">
-                    <img id="previewImg" src="" alt="Preview" />
-                    <button type="button" class="upload-preview-remove" onclick="removerImagem()">✕</button>
-                </div>
+                <div class="upload-preview-grid" id="uploadPreviewGrid"></div>
             </div>
 
             <!-- INFORMAÇÕES GERAIS -->
@@ -444,64 +493,81 @@
 
 @section Scripts {
     <script>
-        async function uploadImagem(input) {
+        let imagensCarregadas = [];
+
+        async function uploadImagens(input) {
             if (!input.files || input.files.length === 0) return;
 
-            const file = input.files[0];
-            const token = getCookie('token');
-
-            if (!token) {
-                alert('Tens de iniciar sessão para fazer upload de imagens.');
-                return;
-            }
-
-            // Mostrar loading
             document.getElementById('uploadLoading').style.display = 'block';
             document.getElementById('uploadArea').style.pointerEvents = 'none';
 
-            try {
-                const formData = new FormData();
-                formData.append('ficheiro', file);
+            const tokenAntiForgery = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
 
-                const response = await fetch('/api/Upload/foto', {
-                    method: 'POST',
-                    headers: { 'Authorization': 'Bearer ' + token },
-                    body: formData
-                });
+            for (const file of input.files) {
+                try {
+                    const formData = new FormData();
+                    formData.append('ficheiro', file);
 
-                if (response.ok) {
-                    const data = await response.json();
-                    // Guardar URL no campo hidden
-                    document.getElementById('imagemUrl').value = data.url;
+                    const response = await fetch('?handler=Upload', {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': tokenAntiForgery
+                        },
+                        body: formData
+                    });
 
-                    // Mostrar preview
-                    document.getElementById('previewImg').src = data.url;
-                    document.getElementById('uploadPreview').style.display = 'block';
-                    document.getElementById('uploadArea').style.display = 'none';
-                } else {
-                    const err = await response.json();
-                    alert('Erro: ' + (err.mensagem || 'Erro ao fazer upload.'));
+                    if (response.ok) {
+                        const data = await response.json();
+                        imagensCarregadas.push(data.url);
+                        adicionarPreview(data.url);
+                    } else {
+                        const err = await response.json();
+                        alert('Erro: ' + (err.mensagem || 'Erro ao fazer upload.'));
+                    }
+                } catch (e) {
+                    alert('Erro ao fazer upload de uma das imagens.');
                 }
-            } catch (e) {
-                alert('Erro ao fazer upload da imagem.');
-            } finally {
-                document.getElementById('uploadLoading').style.display = 'none';
-                document.getElementById('uploadArea').style.pointerEvents = 'auto';
             }
+
+            atualizarCampoOculto();
+            document.getElementById('uploadLoading').style.display = 'none';
+            document.getElementById('uploadArea').style.pointerEvents = 'auto';
+            input.value = '';
         }
 
-        function removerImagem() {
-            document.getElementById('imagemUrl').value = '';
-            document.getElementById('previewImg').src = '';
-            document.getElementById('uploadPreview').style.display = 'none';
-            document.getElementById('uploadArea').style.display = 'block';
-            document.getElementById('ficheiro').value = '';
+        function adicionarPreview(url) {
+            const grid = document.getElementById('uploadPreviewGrid');
+            const div = document.createElement('div');
+            div.className = 'preview-item';
+            div.dataset.url = url;
+
+            const ehCapa = imagensCarregadas.length === 1;
+
+            div.innerHTML = `
+                <img src="${url}" alt="Preview" />
+                ${ehCapa ? '<span class="preview-item-cover">Capa</span>' : ''}
+                <button type="button" class="preview-item-remove" onclick="removerImagem(this)">✕</button>
+            `;
+            grid.appendChild(div);
         }
 
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
+        function removerImagem(btn) {
+            const item = btn.closest('.preview-item');
+            const url = item.dataset.url;
+            imagensCarregadas = imagensCarregadas.filter(u => u !== url);
+            item.remove();
+            atualizarCampoOculto();
+            renderizarCapaNovamente();
+        }
+
+        function renderizarCapaNovamente() {
+            const grid = document.getElementById('uploadPreviewGrid');
+            grid.innerHTML = '';
+            imagensCarregadas.forEach(url => adicionarPreview(url));
+        }
+
+        function atualizarCampoOculto() {
+            document.getElementById('imagensUrls').value = imagensCarregadas.join(',');
         }
     </script>
 }

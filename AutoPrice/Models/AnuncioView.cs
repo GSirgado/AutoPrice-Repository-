@@ -16,6 +16,7 @@
         public int? Potencia { get; set; }
         public string? Transmissao { get; set; }
         public string? CategoriaNome { get; set; }
-        public string? ImagemUrl { get; set; }
+        public string? VendedorNome { get; set; }
+        public List<string> Imagens { get; set; } = new();
     }
 }

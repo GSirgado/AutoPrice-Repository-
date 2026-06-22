@@ -172,17 +172,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Anuncio"
+                "$ref": "#/components/schemas/CriarAnuncioDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/Anuncio"
+                "$ref": "#/components/schemas/CriarAnuncioDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/Anuncio"
+                "$ref": "#/components/schemas/CriarAnuncioDto"
               }
             }
           }
@@ -247,17 +247,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Anuncio"
+                "$ref": "#/components/schemas/CriarAnuncioDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/Anuncio"
+                "$ref": "#/components/schemas/CriarAnuncioDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/Anuncio"
+                "$ref": "#/components/schemas/CriarAnuncioDto"
               }
             }
           }
@@ -635,8 +635,17 @@
             "type": "string",
             "nullable": true
           },
-          "imagemUrl": {
+          "cor": {
             "type": "string",
+            "nullable": true
+          },
+          "transmissao": {
+            "type": "string",
+            "nullable": true
+          },
+          "potencia": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           },
           "categoriaId": {
@@ -645,6 +654,34 @@
           },
           "categoria": {
             "$ref": "#/components/schemas/Categoria"
+          },
+          "imagens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnuncioImg"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AnuncioImg": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "anuncioId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "anuncio": {
+            "$ref": "#/components/schemas/Anuncio"
           }
         },
         "additionalProperties": false
@@ -726,6 +763,73 @@
         },
         "additionalProperties": false
       },
+      "CriarAnuncioDto": {
+        "type": "object",
+        "properties": {
+          "titulo": {
+            "type": "string",
+            "nullable": true
+          },
+          "marca": {
+            "type": "string",
+            "nullable": true
+          },
+          "modelo": {
+            "type": "string",
+            "nullable": true
+          },
+          "ano": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "preco": {
+            "type": "number",
+            "format": "double"
+          },
+          "kilometragem": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "descricao": {
+            "type": "string",
+            "nullable": true
+          },
+          "combustivel": {
+            "type": "string",
+            "nullable": true
+          },
+          "condicao": {
+            "type": "string",
+            "nullable": true
+          },
+          "cor": {
+            "type": "string",
+            "nullable": true
+          },
+          "transmissao": {
+            "type": "string",
+            "nullable": true
+          },
+          "potencia": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "categoriaId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "imagensUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "EditarAnuncioRequest": {
         "type": "object",
         "properties": {
@@ -770,8 +874,11 @@
             "type": "string",
             "nullable": true
           },
-          "imagemUrl": {
-            "type": "string",
+          "imagensUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
             "nullable": true
           }
         },
