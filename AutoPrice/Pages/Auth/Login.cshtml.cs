@@ -44,17 +44,24 @@ namespace AutoPrice.Pages.Auth
                 var token = resultado.GetProperty("token").GetString();
                 var nome = resultado.GetProperty("nomeCompleto").GetString();
 
-                Response.Cookies.Append("token", token!,
-                    new CookieOptions { HttpOnly = true, SameSite = SameSiteMode.Strict });
-                Response.Cookies.Append("nomeCompleto", nome!);
-
-                // NOVO: decodificar o JWT e autenticar o User com cookie auth
+                // Decodificar o JWT PRIMEIRO
                 var handler = new JwtSecurityTokenHandler();
                 var jwtToken = handler.ReadJwtToken(token);
-                var claims = jwtToken.Claims.ToList();
 
-                // Garantir que a claim de role fica reconhecida por User.IsInRole(...)
-                // (cobre o caso de a API emitir "role" em vez do URI completo de ClaimTypes.Role)
+                // Guardar cookies
+                Response.Cookies.Append("token", token!,
+                    new CookieOptions { HttpOnly = false, SameSite = SameSiteMode.Strict });
+
+                var userId = jwtToken.Claims.FirstOrDefault(c =>
+                    c.Type == "sub" ||
+                    c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                    Response.Cookies.Append("userId", userId);
+
+                Response.Cookies.Append("nomeCompleto", nome!);
+
+                // Claims e autenticação por cookie
+                var claims = jwtToken.Claims.ToList();
                 var roleClaims = claims.Where(c => c.Type == "role" || c.Type == ClaimTypes.Role).ToList();
                 foreach (var rc in roleClaims)
                 {

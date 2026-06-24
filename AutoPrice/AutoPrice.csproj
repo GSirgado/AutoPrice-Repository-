@@ -7,14 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Pages\NovaPasta1\**" />
+    <Compile Remove="Pages\NovaPasta\**" />
     <Compile Remove="wwwroot\NovaPasta\**" />
+    <Content Remove="Pages\NovaPasta1\**" />
+    <Content Remove="Pages\NovaPasta\**" />
     <Content Remove="wwwroot\NovaPasta\**" />
+    <EmbeddedResource Remove="Pages\NovaPasta1\**" />
+    <EmbeddedResource Remove="Pages\NovaPasta\**" />
     <EmbeddedResource Remove="wwwroot\NovaPasta\**" />
+    <None Remove="Pages\NovaPasta1\**" />
+    <None Remove="Pages\NovaPasta\**" />
     <None Remove="wwwroot\NovaPasta\**" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

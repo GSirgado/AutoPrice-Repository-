@@ -6,7 +6,6 @@
 @section Styles {
     <link rel="stylesheet" href="~/css/index.css" asp-append-version="true" />
 }
-
 <!-- HERO -->
 <section class="hero">
     <div class="hero-content">
@@ -16,7 +15,6 @@
     </div>
     <img class="hero-image" src="~/img/mota_carro_bmw.png" alt="Carro em destaque" />
 </section>
-
 <!-- PROMO STRIP -->
 <div class="promo-strip">
     <div class="promo-badge">
@@ -25,10 +23,9 @@
     </div>
     <div class="promo-info">
         <div class="promo-amount">Até €5.000 de desconto em veículos selecionados</div>
-        <a href="#" class="btn btn-gold btn-sm">Ver Ofertas</a>
+        <a asp-page="/Auto/Catalogo" class="btn btn-gold btn-sm">Ver Ofertas</a>
     </div>
 </div>
-
 <!-- CATEGORIAS -->
 <section class="section">
     <div class="category-grid">
@@ -38,7 +35,7 @@
                  alt="Carros Novos" />
             <h3>Carros Novos</h3>
             <p>Confira as novidades e lançamentos</p>
-            <a href="#" class="btn btn-gold btn-sm">Ver Carros</a>
+            <a asp-page="/Auto/Catalogo" asp-route-tipo="Carro" class="btn btn-gold btn-sm">Ver Carros</a>
         </div>
         <div class="cat-card">
             <img class="cat-card-img"
@@ -46,11 +43,10 @@
                  alt="Motas Novas" />
             <h3>Motas Novas</h3>
             <p>Veja as motos mais recentes</p>
-            <a href="#" class="btn btn-gold btn-sm">Ver Motas</a>
+            <a asp-page="/Auto/Catalogo" asp-route-tipo="Mota" class="btn btn-gold btn-sm">Ver Motas</a>
         </div>
     </div>
 </section>
-
 <!-- VEÍCULOS EM DESTAQUE -->
 <section class="section" style="padding-top: 0;">
     <div class="section-title">Veículos em Destaque</div>
@@ -62,9 +58,8 @@
             {
                 var fallback = "https://images.unsplash.com/photo-1556189250-72ba954cfc2b?w=400&auto=format&fit=crop";
                 var imagemPrincipal = (anuncio.Imagens != null && anuncio.Imagens.Any())
-                    ? anuncio.Imagens[0]
-                    : fallback;
-
+                ? anuncio.Imagens[0]
+                : fallback;
                 <a href="/Auto/Detalhes/@anuncio.Id" class="vehicle-card">
                     <div class="vehicle-img-wrap">
                         <img src="@imagemPrincipal" alt="@anuncio.Titulo" />

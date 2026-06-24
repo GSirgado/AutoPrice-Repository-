@@ -314,6 +314,37 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "AutoMarket.Controllers.ChatController",
+    "Method": "Historico",
+    "RelativePath": "api/Chat/{anuncioId}/{outroUserId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "anuncioId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "outroUserId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AutoMarket.Controllers.ChatController",
+    "Method": "Conversas",
+    "RelativePath": "api/Chat/conversas",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "AutoMarket.Controllers.PerfilController",
     "Method": "ObterPerfil",
     "RelativePath": "api/Perfil",

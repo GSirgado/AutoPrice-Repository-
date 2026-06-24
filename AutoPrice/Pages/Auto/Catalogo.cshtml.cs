@@ -40,7 +40,7 @@ namespace AutoPrice.Pages
                         Combustivel = a.Combustivel,
                         Condicao = a.Condicao,
                         Kilometragem = a.Kilometragem,
-                        Tipo = a.Categoria?.Nome ?? "Carro",
+                        Tipo = a.Tipo ?? "Carro",
                         ImagemPath = a.Imagens?.FirstOrDefault()?.Url,  // ✅ CORRIGIDO
                     }).ToList() ?? new();
                 }
@@ -66,6 +66,8 @@ namespace AutoPrice.Pages
         public string? Condicao { get; set; }
         public List<AnuncioImgDto>? Imagens { get; set; }  // ✅ CORRIGIDO: lista de objetos
         public CategoriaApiDto? Categoria { get; set; }
+
+        public string? Tipo { get; set; }
     }
 
     // ✅ NOVO: DTO para cada imagem

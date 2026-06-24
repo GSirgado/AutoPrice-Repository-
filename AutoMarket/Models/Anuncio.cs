@@ -22,5 +22,7 @@
 
         // Lista de imagens
         public List<AnuncioImg> Imagens { get; set; } = new();
+
+        public string Tipo { get; set; } = "Carro";
     }
 }

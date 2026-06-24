@@ -4,6 +4,10 @@
 @{
     ViewData["Title"] = Model.Anuncio?.Titulo ?? "Detalhes";
     var a = Model.Anuncio;
+
+    var meuId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+    var eVendedor = !string.IsNullOrEmpty(a?.VendedorId) && a.VendedorId == meuId;
+    var mostrarChat = User.Identity?.IsAuthenticated == true && !eVendedor && !string.IsNullOrEmpty(a?.VendedorId);
 }
 
 @section Styles {
@@ -17,10 +21,8 @@
 else
 {
     <div class="breadcrumb">
-        <a href="/">Início</a>
-        <span>›</span>
-        <span>@a.Marca</span>
-        <span>›</span>
+        <a href="/">Início</a><span>›</span>
+        <span>@a.Marca</span><span>›</span>
         <span>@a.Titulo</span>
     </div>
 
@@ -32,7 +34,6 @@ else
                 @if (a.Imagens != null && a.Imagens.Any())
                 {
                     <img id="main-img" src="@a.Imagens[0]" alt="@a.Titulo" />
-
                     if (a.Imagens.Count > 1)
                     {
                         <button class="slide-btn slide-prev" onclick="mudarImagem(-1)" type="button">‹</button>
@@ -81,38 +82,14 @@ else
             <div class="specs-block">
                 <div class="specs-title">Ficha Técnica</div>
                 <div class="specs-grid">
-                    <div class="spec-item">
-                        <div class="spec-label">Ano</div>
-                        <div class="spec-value">@a.Ano</div>
-                    </div>
-                    <div class="spec-item">
-                        <div class="spec-label">Marca</div>
-                        <div class="spec-value">@a.Marca</div>
-                    </div>
-                    <div class="spec-item">
-                        <div class="spec-label">Modelo</div>
-                        <div class="spec-value">@a.Modelo</div>
-                    </div>
-                    <div class="spec-item">
-                        <div class="spec-label">Combustível</div>
-                        <div class="spec-value">@(a.Combustivel ?? "—")</div>
-                    </div>
-                    <div class="spec-item">
-                        <div class="spec-label">Transmissão</div>
-                        <div class="spec-value">@(a.Transmissao ?? "—")</div>
-                    </div>
-                    <div class="spec-item">
-                        <div class="spec-label">Quilómetros</div>
-                        <div class="spec-value">@(a.Kilometragem.HasValue ? a.Kilometragem + " km" : "—")</div>
-                    </div>
-                    <div class="spec-item">
-                        <div class="spec-label">Cor</div>
-                        <div class="spec-value">@(a.Cor ?? "—")</div>
-                    </div>
-                    <div class="spec-item">
-                        <div class="spec-label">Potência</div>
-                        <div class="spec-value">@(a.Potencia.HasValue ? a.Potencia + " cv" : "—")</div>
-                    </div>
+                    <div class="spec-item"><div class="spec-label">Ano</div><div class="spec-value">@a.Ano</div></div>
+                    <div class="spec-item"><div class="spec-label">Marca</div><div class="spec-value">@a.Marca</div></div>
+                    <div class="spec-item"><div class="spec-label">Modelo</div><div class="spec-value">@a.Modelo</div></div>
+                    <div class="spec-item"><div class="spec-label">Combustível</div><div class="spec-value">@(a.Combustivel ?? "—")</div></div>
+                    <div class="spec-item"><div class="spec-label">Transmissão</div><div class="spec-value">@(a.Transmissao ?? "—")</div></div>
+                    <div class="spec-item"><div class="spec-label">Quilómetros</div><div class="spec-value">@(a.Kilometragem.HasValue? a.Kilometragem + " km" : "—")</div></div>
+                    <div class="spec-item"><div class="spec-label">Cor</div><div class="spec-value">@(a.Cor ?? "—")</div></div>
+                    <div class="spec-item"><div class="spec-label">Potência</div><div class="spec-value">@(a.Potencia.HasValue? a.Potencia + " cv" : "—")</div></div>
                 </div>
             </div>
 
@@ -124,8 +101,25 @@ else
                 </div>
             }
 
-            <button class="btn-comprar" onclick="alert('Pedido de compra enviado!')">Comprar Agora</button>
-            <button class="btn-contacto" onclick="alert('Entraremos em contacto brevemente.')">Contactar Vendedor</button>
+            @if (mostrarChat)
+            {
+                <a href="/Mensagens?anuncioId=@a.Id&outroId=@a.VendedorId"
+                   class="btn-contacto"
+                   style="width:100%;display:block;text-align:center;margin-top:12px;text-decoration:none">
+                    💬 Contactar Vendedor
+                </a>
+            }
+
+            @if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                <p style="margin-top:12px;font-size:.85rem;color:#888">
+                    <a href="/Auth/Login" style="color:#e63946">Inicia sessão</a> para contactar o vendedor.
+                </p>
+            }
+            @if (eVendedor)
+            {
+                <p style="margin-top:12px;font-size:.85rem;color:#888">Este é o teu anúncio.</p>
+            }
         </div>
     </div>
 }
@@ -135,24 +129,16 @@ else
     <script>
         const imagensVeiculo = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(a.Imagens));
         let indiceAtual = 0;
-
         function mudarImagem(direcao) {
             indiceAtual += direcao;
             if (indiceAtual < 0) indiceAtual = imagensVeiculo.length - 1;
             if (indiceAtual >= imagensVeiculo.length) indiceAtual = 0;
             atualizarImagemPrincipal();
         }
-
-        function irParaImagem(indice) {
-            indiceAtual = indice;
-            atualizarImagemPrincipal();
-        }
-
+        function irParaImagem(indice) { indiceAtual = indice; atualizarImagemPrincipal(); }
         function atualizarImagemPrincipal() {
             document.getElementById('main-img').src = imagensVeiculo[indiceAtual];
-            document.querySelectorAll('.thumb-item').forEach((t, i) => {
-                t.classList.toggle('active', i === indiceAtual);
-            });
+            document.querySelectorAll('.thumb-item').forEach((t, i) => t.classList.toggle('active', i === indiceAtual));
         }
     </script>
 }

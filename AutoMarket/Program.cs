@@ -1,4 +1,5 @@
 ﻿using AutoMarket.Data;
+using AutoMarket.Hubs;
 using AutoMarket.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -8,10 +9,11 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ── Base de dados ─────────────────────────────────────────────────────────────
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Identity
+// ── Identity ──────────────────────────────────────────────────────────────────
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -23,7 +25,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
-// JWT
+// ── JWT ───────────────────────────────────────────────────────────────────────
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"]!;
 
@@ -44,8 +46,38 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
     };
+
+    // SignalR envia o token via query string (?access_token=...) em vez de header
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/chat"))
+                context.Token = accessToken;
+            return Task.CompletedTask;
+        }
+    };
 });
 
+// ── CORS — permite o frontend AutoPrice ligar ao SignalR Hub ──────────────────
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ChatPolicy", policy =>
+        policy.WithOrigins(
+                "https://localhost:7027",  // AutoPrice HTTPS
+                "http://localhost:5132"    // AutoPrice HTTP
+              )
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials()); // obrigatório para SignalR WebSockets
+});
+
+// ── SignalR ───────────────────────────────────────────────────────────────────
+builder.Services.AddSignalR();
+
+// ── Controllers + JSON ───────────────────────────────────────────────────────
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -55,7 +87,7 @@ builder.Services.AddControllers()
 
 builder.Services.AddEndpointsApiExplorer();
 
-// Swagger com suporte JWT
+// ── Swagger com suporte JWT ───────────────────────────────────────────────────
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -86,7 +118,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// Criar role Admin e atribuir ao utilizador admin
+// ── Seed: role Admin ──────────────────────────────────────────────────────────
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -100,10 +132,14 @@ using (var scope = app.Services.CreateScope())
         await userManager.AddToRoleAsync(admin, "Admin");
 }
 
+// ── Pipeline ──────────────────────────────────────────────────────────────────
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseStaticFiles();
+app.UseCors("ChatPolicy");          // CORS tem de vir ANTES de Auth e MapHub
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<ChatHub>("/hubs/chat");  // endpoint SignalR
+
 app.Run();

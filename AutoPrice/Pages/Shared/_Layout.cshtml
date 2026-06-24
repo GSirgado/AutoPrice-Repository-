@@ -65,30 +65,68 @@
             .nav-dropdown-menu a + a {
                 border-top: 1px solid #2a2a2a;
             }
+
+        /* Ícone mensagens */
+        .nav-msg-link {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+            .nav-msg-link svg {
+                width: 22px;
+                height: 22px;
+                fill: none;
+                stroke: #ccc;
+                stroke-width: 2;
+                transition: stroke .2s;
+            }
+
+            .nav-msg-link:hover svg {
+                stroke: #e63946;
+            }
+
+        .nav-msg-badge {
+            display: none;
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            background: #e63946;
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            border-radius: 999px;
+            min-width: 16px;
+            height: 16px;
+            line-height: 16px;
+            text-align: center;
+            padding: 0 3px;
+        }
+
+            .nav-msg-badge.visivel {
+                display: block;
+            }
     </style>
 </head>
 <body>
-    <!-- NAV -->
     <nav>
         <a asp-page="/Index"><img class="logo" src="~/img/Logo_AP.png" /></a>
         <div class="nav-links">
             <a asp-page="/Auto/Catalogo">Comprar</a>
 
-            <!-- Vender dropdown -->
             <div class="nav-dropdown" id="dropdown-vender">
                 <a href="#" onclick="toggleDropdown('dropdown-vender'); return false;">Vender</a>
                 <div class="nav-dropdown-menu">
                     <a asp-page="/Auto/Vender" asp-route-tipo="Carro">🚗 Carros</a>
-                    <a asp-page="/Auto/Vender" asp-route-tipo="Mota">🏍️ Motas</a>
+                    <a asp-page="/Auto/Vender" asp-route-tipo="Mota">🏍 Motas</a>
                 </div>
             </div>
 
-            <!-- Avaliar dropdown -->
             <div class="nav-dropdown" id="dropdown-avaliar">
                 <a href="#" onclick="toggleDropdown('dropdown-avaliar'); return false;">Avaliar</a>
                 <div class="nav-dropdown-menu">
                     <a asp-page="/Avaliar" asp-route-tipo="Carro">🚗 Carros</a>
-                    <a asp-page="/Avaliar" asp-route-tipo="Mota">🏍️ Motas</a>
+                    <a asp-page="/Avaliar" asp-route-tipo="Mota">🏍 Motas</a>
                 </div>
             </div>
 
@@ -99,6 +137,14 @@
                 var fotoSrc = string.IsNullOrEmpty(fotoUser)
                 ? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(nomeUser) + "&background=c9a84c&color=000&size=200"
                 : fotoUser;
+
+                <a asp-page="/Mensagens/Index" class="nav-msg-link" title="Mensagens">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                    <span class="nav-msg-badge" id="msg-badge"></span>
+                </a>
+
                 <a asp-page="/Auth/Perfil">
                     <img src="@fotoSrc" class="user-icon" title="@nomeUser" />
                 </a>
@@ -111,8 +157,9 @@
             }
         </div>
     </nav>
+
     @RenderBody()
-    <!-- FOOTER -->
+
     <footer>
         <div class="footer-nav">
             <a asp-page="/Index">Carros</a>
@@ -133,22 +180,14 @@
         function toggleDropdown(id) {
             const dropdown = document.getElementById(id);
             const isOpen = dropdown.classList.contains('open');
-
-            // Fecha todos os dropdowns
             document.querySelectorAll('.nav-dropdown').forEach(d => d.classList.remove('open'));
-
-            // Abre o clicado se estava fechado
             if (!isOpen) dropdown.classList.add('open');
         }
-
-        // Fecha ao clicar fora
         document.addEventListener('click', function (e) {
-            if (!e.target.closest('.nav-dropdown')) {
+            if (!e.target.closest('.nav-dropdown'))
                 document.querySelectorAll('.nav-dropdown').forEach(d => d.classList.remove('open'));
-            }
         });
     </script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

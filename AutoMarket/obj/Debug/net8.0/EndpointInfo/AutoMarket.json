@@ -511,6 +511,49 @@
         }
       }
     },
+    "/api/Chat/conversas": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Chat/{anuncioId}/{outroUserId}": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "parameters": [
+          {
+            "name": "anuncioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "outroUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Perfil": {
       "get": {
         "tags": [
@@ -660,6 +703,10 @@
             "items": {
               "$ref": "#/components/schemas/AnuncioImg"
             },
+            "nullable": true
+          },
+          "tipo": {
+            "type": "string",
             "nullable": true
           }
         },
