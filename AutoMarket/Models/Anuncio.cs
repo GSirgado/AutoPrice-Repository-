@@ -7,6 +7,7 @@
         public string Marca { get; set; } = string.Empty;
         public string Modelo { get; set; } = string.Empty;
         public string? VendedorId { get; set; }
+        public string Tipo { get; set; } = "Carro"; // NOVO: "Carro" ou "Mota"
         public int Ano { get; set; }
         public decimal Preco { get; set; }
         public int? Kilometragem { get; set; }
@@ -20,9 +21,6 @@
         public int CategoriaId { get; set; }
         public Categoria? Categoria { get; set; }
 
-        // Lista de imagens
         public List<AnuncioImg> Imagens { get; set; } = new();
-
-        public string Tipo { get; set; } = "Carro";
     }
 }

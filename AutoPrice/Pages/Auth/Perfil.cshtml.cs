@@ -37,7 +37,7 @@ namespace AutoPrice.Pages
                 var perfil = JsonSerializer.Deserialize<JsonElement>(json);
                 NomeCompleto = perfil.GetProperty("nomeCompleto").GetString() ?? "";
                 Email = perfil.GetProperty("email").GetString() ?? "";
-                Telefone = perfil.TryGetProperty("phoneNumber", out var tel) ? tel.GetString() : null;
+                Telefone = perfil.TryGetProperty("telefone", out var tel) ? tel.GetString() : null;
                 Localizacao = perfil.TryGetProperty("localizacao", out var loc) ? loc.GetString() : null;
                 FotoUrl = perfil.TryGetProperty("fotoUrl", out var foto) ? foto.GetString() : null;
             }
@@ -69,5 +69,6 @@ namespace AutoPrice.Pages
         public string? Condicao { get; set; }
         public int? CategoriaId { get; set; }
         public string? Categoria { get; set; }
+        public List<string> Imagens { get; set; } = new();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMarket.Data;
+using AutoMarket.DTOs;
 using AutoMarket.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -23,38 +24,18 @@ namespace AutoMarket.Controllers
 
         // GET api/anuncios
         [HttpGet]
-        public async Task<IActionResult> Listar()
+        public async Task<IActionResult> Listar([FromQuery] string? tipo)
         {
-            var anuncios = await _db.Anuncios
+            var query = _db.Anuncios
                 .Include(a => a.Categoria)
                 .Include(a => a.Imagens)
-                .ToListAsync();
+                .AsQueryable();
 
-            // ✅ CORRIGIDO: devolver DTO sem referências circulares
-            // A API devolvia o objeto Anuncio diretamente, causando:
-            // - referências circulares (Anuncio → AnuncioImg → Anuncio)
-            // - campo "imagens" como lista de objetos {id, url, anuncioId}
-            //   em vez de lista de strings, partindo a deserialização no frontend
-            var resultado = anuncios.Select(a => new
-            {
-                a.Id,
-                a.Titulo,
-                a.Marca,
-                a.Modelo,
-                a.Ano,
-                a.Preco,
-                a.Kilometragem,
-                a.Combustivel,
-                a.Condicao,
-                a.Cor,
-                a.Transmissao,
-                a.Potencia,
-                a.CategoriaId,
-                Categoria = a.Categoria == null ? null : new { a.Categoria.Id, a.Categoria.Nome },
-                Imagens = a.Imagens.Select(i => new { i.Id, i.Url }).ToList()
-            });
+            if (!string.IsNullOrEmpty(tipo))
+                query = query.Where(a => a.Tipo == tipo);
 
-            return Ok(resultado);
+            var anuncios = await query.ToListAsync();
+            return Ok(anuncios);
         }
 
         // GET api/anuncios/meus
@@ -75,6 +56,7 @@ namespace AutoMarket.Controllers
                     a.Titulo,
                     a.Marca,
                     a.Modelo,
+                    a.Tipo,
                     a.Ano,
                     a.Preco,
                     a.Combustivel,
@@ -112,6 +94,7 @@ namespace AutoMarket.Controllers
                 anuncio.Descricao,
                 anuncio.Marca,
                 anuncio.Modelo,
+                anuncio.Tipo,
                 anuncio.Ano,
                 anuncio.Preco,
                 anuncio.Kilometragem,
@@ -129,23 +112,6 @@ namespace AutoMarket.Controllers
         }
 
         // POST api/anuncios
-        public class CriarAnuncioDto
-        {
-            public string Titulo { get; set; } = string.Empty;
-            public string Marca { get; set; } = string.Empty;
-            public string Modelo { get; set; } = string.Empty;
-            public int Ano { get; set; }
-            public decimal Preco { get; set; }
-            public int? Kilometragem { get; set; }
-            public string? Descricao { get; set; }
-            public string? Combustivel { get; set; }
-            public string? Condicao { get; set; }
-            public string? Cor { get; set; }
-            public string? Transmissao { get; set; }
-            public int? Potencia { get; set; }
-            public int CategoriaId { get; set; }
-            public List<string>? ImagensUrls { get; set; }
-        }
 
         [HttpPost]
         [Authorize]
@@ -156,6 +122,7 @@ namespace AutoMarket.Controllers
                 Titulo = dto.Titulo,
                 Marca = dto.Marca,
                 Modelo = dto.Modelo,
+                Tipo = dto.Tipo,
                 Ano = dto.Ano,
                 Preco = dto.Preco,
                 Kilometragem = dto.Kilometragem,
@@ -200,6 +167,7 @@ namespace AutoMarket.Controllers
             anuncio.Titulo = dados.Titulo;
             anuncio.Marca = dados.Marca;
             anuncio.Modelo = dados.Modelo;
+            anuncio.Tipo = dados.Tipo;
             anuncio.Ano = dados.Ano;
             anuncio.Preco = dados.Preco;
             anuncio.Kilometragem = dados.Kilometragem;

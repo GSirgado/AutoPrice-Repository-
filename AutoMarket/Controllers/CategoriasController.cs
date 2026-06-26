@@ -18,9 +18,14 @@ namespace AutoMarket.Controllers
 
         // GET api/categorias
         [HttpGet]
-        public async Task<IActionResult> Listar()
+        public async Task<IActionResult> Listar([FromQuery] string? tipo)
         {
-            var categorias = await _db.Categorias.ToListAsync();
+            var query = _db.Categorias.AsQueryable();
+
+            if (!string.IsNullOrEmpty(tipo))
+                query = query.Where(c => c.Tipo == tipo);
+
+            var categorias = await query.ToListAsync();
             return Ok(categorias);
         }
 

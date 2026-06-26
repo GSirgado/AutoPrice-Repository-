@@ -81,7 +81,7 @@ namespace AutoPrice.Pages.Admin
         {
             var client = CriarClienteAutenticado();
             await client.DeleteAsync($"/api/admin/anuncios/{id}");
-            TempData["Sucesso"] = "Anúncio eliminado com sucesso.";
+            TempData["Sucesso"] = "AnÃºncio eliminado com sucesso.";
             return RedirectToPage();
         }
 
@@ -100,7 +100,7 @@ namespace AutoPrice.Pages.Admin
             }
             else
             {
-                TempData["Erro"] = "Não foi possível atualizar o utilizador. Verifica a password (mín. 6 caracteres, com pelo menos um número).";
+                TempData["Erro"] = "NÃ£o foi possÃ­vel atualizar o utilizador. Verifica a password (mÃ­n. 6 caracteres, com pelo menos um nÃºmero).";
             }
 
             return RedirectToPage();
@@ -109,11 +109,14 @@ namespace AutoPrice.Pages.Admin
         public async Task<IActionResult> OnPostEditarAnuncioAsync(
             int id, string titulo, string marca, string modelo, int ano, decimal preco,
             int categoriaId, int? kilometragem, string? descricao, string? combustivel, string? condicao,
-            string? imagemUrlAtual, IFormFile? novaImagem)
+            string? imagensAtuais, IFormFile? novaImagem)
         {
             var client = CriarClienteAutenticado();
 
-            string? imagemUrl = imagemUrlAtual;
+            // imagensAtuais chega como URLs separados por vÃ­rgula (campo hidden no formulÃ¡rio)
+            var imagensUrls = string.IsNullOrWhiteSpace(imagensAtuais)
+                ? new List<string>()
+                : imagensAtuais.Split(',').Where(u => !string.IsNullOrWhiteSpace(u)).ToList();
 
             if (novaImagem != null && novaImagem.Length > 0)
             {
@@ -128,11 +131,13 @@ namespace AutoPrice.Pages.Admin
                 {
                     var uploadJson = await uploadResponse.Content.ReadAsStringAsync();
                     var uploadResultado = JsonSerializer.Deserialize<JsonElement>(uploadJson);
-                    imagemUrl = uploadResultado.GetProperty("url").GetString();
+                    var novaUrl = uploadResultado.GetProperty("url").GetString();
+                    if (!string.IsNullOrEmpty(novaUrl))
+                        imagensUrls.Add(novaUrl);
                 }
                 else
                 {
-                    TempData["Erro"] = "Não foi possível enviar a nova imagem.";
+                    TempData["Erro"] = "NÃ£o foi possÃ­vel enviar a nova imagem.";
                     return RedirectToPage();
                 }
             }
@@ -149,16 +154,16 @@ namespace AutoPrice.Pages.Admin
                 descricao,
                 combustivel,
                 condicao,
-                imagemUrl
+                imagensUrls
             };
             var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
 
             var resposta = await client.PutAsync($"/api/admin/anuncios/{id}", content);
 
             if (resposta.IsSuccessStatusCode)
-                TempData["Sucesso"] = "Anúncio atualizado com sucesso.";
+                TempData["Sucesso"] = "AnÃºncio atualizado com sucesso.";
             else
-                TempData["Erro"] = "Não foi possível atualizar o anúncio.";
+                TempData["Erro"] = "NÃ£o foi possÃ­vel atualizar o anÃºncio.";
 
             return RedirectToPage();
         }
@@ -189,7 +194,7 @@ namespace AutoPrice.Pages.Admin
         public string? Descricao { get; set; }
         public string? Combustivel { get; set; }
         public string? Condicao { get; set; }
-        public string? ImagemUrl { get; set; }
+        public List<string> Imagens { get; set; } = new();
         public string? VendedorNome { get; set; }
         public string? VendedorEmail { get; set; }
     }

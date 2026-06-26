@@ -67,7 +67,7 @@ namespace AutoPrice.Pages
         {
             var token = Request.Cookies["token"];
             if (string.IsNullOrEmpty(token))
-                return new JsonResult(new { mensagem = "Não autenticado." }) { StatusCode = 401 };
+                return new JsonResult(new { mensagem = "NÃ£o autenticado." }) { StatusCode = 401 };
 
             if (ficheiro == null || ficheiro.Length == 0)
                 return new JsonResult(new { mensagem = "Nenhum ficheiro enviado." }) { StatusCode = 400 };
@@ -114,6 +114,7 @@ namespace AutoPrice.Pages
                 titulo = Titulo,
                 marca = Marca,
                 modelo = Modelo,
+                tipo = Tipo,
                 ano = Ano,
                 preco = Preco,
                 kilometragem = Kilometragem,
@@ -136,12 +137,12 @@ namespace AutoPrice.Pages
 
             if (response.IsSuccessStatusCode)
             {
-                Sucesso = "Anúncio publicado com sucesso!";
+                Sucesso = "AnÃºncio publicado com sucesso!";
                 return Page();
             }
             else
             {
-                Erro = "Erro ao publicar o anúncio. Tente novamente.";
+                Erro = "Erro ao publicar o anÃºncio. Tente novamente.";
                 return Page();
             }
         }
@@ -151,26 +152,13 @@ namespace AutoPrice.Pages
             try
             {
                 var client = _clientFactory.CreateClient("AutoMarketAPI");
-                var response = await client.GetAsync("/api/Categorias");
+                var response = await client.GetAsync($"/api/Categorias?tipo={tipo}");
 
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    var todas = JsonSerializer.Deserialize<List<CategoriaItem>>(json,
+                    Categorias = JsonSerializer.Deserialize<List<CategoriaItem>>(json,
                         new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
-
-                    if (tipo == "Mota")
-                        Categorias = todas.Where(c =>
-                            c.Nome.Contains("Mota") ||
-                            c.Nome.Contains("Scooter") ||
-                            c.Nome.Contains("Quad") ||
-                            c.Nome.Contains("Minimoto")).ToList();
-                    else
-                        Categorias = todas.Where(c =>
-                            !c.Nome.Contains("Mota") &&
-                            !c.Nome.Contains("Scooter") &&
-                            !c.Nome.Contains("Quad") &&
-                            !c.Nome.Contains("Minimoto")).ToList();
                 }
             }
             catch (Exception ex)

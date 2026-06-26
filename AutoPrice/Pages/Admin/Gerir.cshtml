@@ -5,364 +5,7 @@
 }
 
 @section Styles {
-    <style>
-        .admin-wrap {
-            max-width: 1100px;
-            margin: 40px auto 80px;
-            padding: 0 24px;
-        }
-
-        .admin-title {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 2.2rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            color: #fff;
-            margin-bottom: 6px;
-        }
-
-            .admin-title span {
-                color: #e63946;
-            }
-
-        .admin-sub {
-            color: #888;
-            font-size: .85rem;
-            margin-bottom: 36px;
-        }
-
-        .admin-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            margin-bottom: 36px;
-        }
-
-        .stat-card {
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
-            border-radius: 12px;
-            padding: 24px;
-            text-align: center;
-        }
-
-        .stat-num {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 2.4rem;
-            font-weight: 900;
-            color: #c9a84c;
-        }
-
-        .stat-label {
-            font-size: .8rem;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: .05em;
-            margin-top: 4px;
-        }
-
-        .admin-tabs {
-            display: flex;
-            gap: 4px;
-            background: #111;
-            border: 1px solid #2a2a2a;
-            border-radius: 10px;
-            padding: 4px;
-            margin-bottom: 24px;
-            width: fit-content;
-        }
-
-        .tab-btn {
-            background: transparent;
-            border: none;
-            color: #888;
-            font-family: 'Barlow', sans-serif;
-            font-size: .88rem;
-            font-weight: 600;
-            padding: 10px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all .2s;
-        }
-
-            .tab-btn.active {
-                background: #1a1a1a;
-                color: #fff;
-                border: 1px solid #2a2a2a;
-            }
-
-        .tab-panel {
-            display: none;
-        }
-
-            .tab-panel.active {
-                display: block;
-            }
-
-        .admin-table-wrap {
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .admin-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-            .admin-table thead {
-                background: #111;
-            }
-
-            .admin-table th {
-                padding: 14px 18px;
-                text-align: left;
-                font-size: .75rem;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: .05em;
-                color: #888;
-                border-bottom: 1px solid #2a2a2a;
-            }
-
-            .admin-table td {
-                padding: 14px 18px;
-                font-size: .88rem;
-                color: #ccc;
-                border-bottom: 1px solid #1f1f1f;
-                vertical-align: middle;
-            }
-
-            .admin-table tr:last-child td {
-                border-bottom: none;
-            }
-
-            .admin-table tr:hover td {
-                background: rgba(255,255,255,.02);
-            }
-
-        .u-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #2a2a2a;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-
-        .v-thumb {
-            width: 48px;
-            height: 34px;
-            object-fit: cover;
-            border-radius: 6px;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-
-        .u-name {
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .row-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-del, .btn-edit {
-            border-radius: 6px;
-            padding: 6px 14px;
-            font-size: .78rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all .2s;
-            font-family: 'Barlow', sans-serif;
-        }
-
-        .btn-del {
-            background: rgba(230,57,70,.1);
-            border: 1px solid rgba(230,57,70,.3);
-            color: #e63946;
-        }
-
-            .btn-del:hover {
-                background: #e63946;
-                color: #fff;
-            }
-
-        .btn-edit {
-            background: rgba(201,168,76,.1);
-            border: 1px solid rgba(201,168,76,.35);
-            color: #c9a84c;
-        }
-
-            .btn-edit:hover {
-                background: #c9a84c;
-                color: #000;
-            }
-
-        .admin-search {
-            background: #111;
-            border: 1px solid #2a2a2a;
-            border-radius: 8px;
-            padding: 10px 16px;
-            color: #fff;
-            font-family: 'Barlow', sans-serif;
-            font-size: .88rem;
-            width: 280px;
-            margin-bottom: 16px;
-        }
-
-            .admin-search:focus {
-                outline: none;
-                border-color: #c9a84c;
-            }
-
-        .sucesso-banner {
-            background: rgba(0,201,122,.1);
-            border: 1px solid rgba(0,201,122,.3);
-            color: #00c97a;
-            border-radius: 8px;
-            padding: 12px 18px;
-            margin-bottom: 20px;
-            font-size: .88rem;
-            font-weight: 600;
-        }
-
-        .erro-banner {
-            background: rgba(230,57,70,.1);
-            border: 1px solid rgba(230,57,70,.3);
-            color: #e63946;
-            border-radius: 8px;
-            padding: 12px 18px;
-            margin-bottom: 20px;
-            font-size: .88rem;
-            font-weight: 600;
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,.6);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-            .modal-overlay.active {
-                display: flex;
-            }
-
-        .modal-box {
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
-            border-radius: 14px;
-            padding: 28px;
-            width: 100%;
-            max-width: 440px;
-            max-height: 86vh;
-            overflow-y: auto;
-        }
-
-            .modal-box h3 {
-                font-family: 'Barlow Condensed', sans-serif;
-                font-size: 1.4rem;
-                font-weight: 900;
-                text-transform: uppercase;
-                color: #fff;
-                margin-bottom: 20px;
-            }
-
-            .modal-box .form-group {
-                margin-bottom: 14px;
-            }
-
-            .modal-box label {
-                display: block;
-                font-size: .78rem;
-                color: #888;
-                text-transform: uppercase;
-                letter-spacing: .04em;
-                margin-bottom: 6px;
-            }
-
-            .modal-box input,
-            .modal-box select,
-            .modal-box textarea {
-                width: 100%;
-                background: #111;
-                border: 1px solid #2a2a2a;
-                border-radius: 8px;
-                padding: 10px 12px;
-                color: #fff;
-                font-family: 'Barlow', sans-serif;
-                font-size: .88rem;
-            }
-
-                .modal-box input:focus,
-                .modal-box select:focus,
-                .modal-box textarea:focus {
-                    outline: none;
-                    border-color: #c9a84c;
-                }
-
-        .modal-grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn-cancel {
-            background: transparent;
-            border: 1px solid #2a2a2a;
-            color: #888;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-family: 'Barlow', sans-serif;
-            font-size: .88rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn-salvar {
-            background: #c9a84c;
-            border: none;
-            color: #000;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-family: 'Barlow', sans-serif;
-            font-size: .88rem;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .ea-img-preview {
-            max-width: 100%;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: none;
-        }
-
-        @@media (max-width: 700px) {
-            .admin-stats {
-                grid-template-columns: 1fr;
-            }
-
-            .modal-grid-2 {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
 }
 
 <div class="admin-wrap">
@@ -484,9 +127,12 @@
                     {
                         <tr>
                             <td>
-                                @if (!string.IsNullOrEmpty(v.ImagemUrl))
+                                @{
+                                    var capa = (v.Imagens != null && v.Imagens.Any()) ? v.Imagens[0] : null;
+                                }
+                                @if (!string.IsNullOrEmpty(capa))
                                 {
-                                    <img class="v-thumb" src="@v.ImagemUrl" alt="@v.Marca @v.Modelo" />
+                                    <img class="v-thumb" src="@capa" alt="@v.Marca @v.Modelo" />
                                 }
                                 <span class="u-name">@v.Marca @v.Modelo (@v.Ano)</span>
                             </td>
@@ -507,7 +153,7 @@
                                             data-descricao="@v.Descricao"
                                             data-combustivel="@v.Combustivel"
                                             data-condicao="@v.Condicao"
-                                            data-imagemurl="@v.ImagemUrl"
+                                            data-imagens="@(string.Join(",", v.Imagens ?? new List<string>()))"
                                             onclick="abrirModalAnuncio(this)">
                                         Editar
                                     </button>
@@ -566,7 +212,7 @@
         <form method="post" asp-page-handler="EditarAnuncio" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
             <input type="hidden" name="id" id="ea-id" />
-            <input type="hidden" name="imagemUrlAtual" id="ea-imagem-atual" />
+            <input type="hidden" name="imagensAtuais" id="ea-imagem-atual" />
 
             <div class="form-group">
                 <label>Imagem atual</label>
@@ -670,12 +316,13 @@
             document.getElementById('ea-descricao').value = btn.dataset.descricao || '';
             document.getElementById('ea-combustivel').value = btn.dataset.combustivel || '';
             document.getElementById('ea-condicao').value = btn.dataset.condicao || '';
-            document.getElementById('ea-imagem-atual').value = btn.dataset.imagemurl || '';
+            document.getElementById('ea-imagem-atual').value = btn.dataset.imagens || '';
             document.getElementById('ea-nova-imagem').value = '';
 
+            const listaImagens = (btn.dataset.imagens || '').split(',').filter(u => u.trim() !== '');
             const preview = document.getElementById('ea-imagem-preview');
-            if (btn.dataset.imagemurl) {
-                preview.src = btn.dataset.imagemurl;
+            if (listaImagens.length > 0) {
+                preview.src = listaImagens[0];
                 preview.style.display = 'block';
             } else {
                 preview.style.display = 'none';

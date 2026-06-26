@@ -60,7 +60,7 @@
                 var imagemPrincipal = (anuncio.Imagens != null && anuncio.Imagens.Any())
                 ? anuncio.Imagens[0]
                 : fallback;
-                <a href="/Auto/Detalhes/@anuncio.Id" class="vehicle-card">
+                <a asp-page="/Auto/Detalhes" asp-route-id="@anuncio.Id" class="vehicle-card">
                     <div class="vehicle-img-wrap">
                         <img src="@imagemPrincipal" alt="@anuncio.Titulo" />
                     </div>

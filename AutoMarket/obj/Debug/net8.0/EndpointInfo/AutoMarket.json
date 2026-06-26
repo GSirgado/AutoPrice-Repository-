@@ -158,6 +158,15 @@
         "tags": [
           "Anuncios"
         ],
+        "parameters": [
+          {
+            "name": "tipo",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -390,6 +399,15 @@
       "get": {
         "tags": [
           "Categorias"
+        ],
+        "parameters": [
+          {
+            "name": "tipo",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -653,6 +671,10 @@
             "type": "string",
             "nullable": true
           },
+          "tipo": {
+            "type": "string",
+            "nullable": true
+          },
           "ano": {
             "type": "integer",
             "format": "int32"
@@ -703,10 +725,6 @@
             "items": {
               "$ref": "#/components/schemas/AnuncioImg"
             },
-            "nullable": true
-          },
-          "tipo": {
-            "type": "string",
             "nullable": true
           }
         },
@@ -800,6 +818,10 @@
             "type": "string",
             "nullable": true
           },
+          "tipo": {
+            "type": "string",
+            "nullable": true
+          },
           "anuncios": {
             "type": "array",
             "items": {
@@ -822,6 +844,10 @@
             "nullable": true
           },
           "modelo": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipo": {
             "type": "string",
             "nullable": true
           },
@@ -954,44 +980,33 @@
         "additionalProperties": false
       },
       "LoginDto": {
-        "required": [
-          "email",
-          "password"
-        ],
         "type": "object",
         "properties": {
           "email": {
-            "minLength": 1,
             "type": "string",
-            "format": "email"
+            "nullable": true
           },
           "password": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
       },
       "RegisterDto": {
-        "required": [
-          "email",
-          "nomeCompleto",
-          "password"
-        ],
         "type": "object",
         "properties": {
           "nomeCompleto": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "email": {
-            "minLength": 1,
             "type": "string",
-            "format": "email"
+            "nullable": true
           },
           "password": {
-            "minLength": 6,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

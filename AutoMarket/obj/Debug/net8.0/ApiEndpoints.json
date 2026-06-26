@@ -100,7 +100,13 @@
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "tipo",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": []
   },
   {
@@ -113,7 +119,7 @@
     "Parameters": [
       {
         "Name": "dto",
-        "Type": "AutoMarket.Controllers.AnunciosController\u002BCriarAnuncioDto",
+        "Type": "AutoMarket.DTOs.CriarAnuncioDto",
         "IsRequired": true
       }
     ],
@@ -150,7 +156,7 @@
       },
       {
         "Name": "dados",
-        "Type": "AutoMarket.Controllers.AnunciosController\u002BCriarAnuncioDto",
+        "Type": "AutoMarket.DTOs.CriarAnuncioDto",
         "IsRequired": true
       }
     ],
@@ -241,7 +247,13 @@
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "tipo",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": []
   },
   {

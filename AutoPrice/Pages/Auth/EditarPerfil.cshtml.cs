@@ -70,7 +70,7 @@ namespace AutoPrice.Pages
                 }
                 if (NovaPassword != ConfirmarPassword)
                 {
-                    Erro = "As novas passwords n„o coincidem.";
+                    Erro = "As novas passwords n√£o coincidem.";
                     await CarregarEmail(token);
                     return Page();
                 }
@@ -99,7 +99,7 @@ namespace AutoPrice.Pages
                 else
                 {
                     var erroDetalhe = await responseUpload.Content.ReadAsStringAsync();
-                    Erro = $"Erro upload: {responseUpload.StatusCode} ó {erroDetalhe}";
+                    Erro = $"Erro upload: {responseUpload.StatusCode} - {erroDetalhe}";
                     await CarregarEmail(token);
                     return Page();
                 }

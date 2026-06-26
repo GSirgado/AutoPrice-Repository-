@@ -21,7 +21,7 @@
 else
 {
     <div class="breadcrumb">
-        <a href="/">Início</a><span>›</span>
+        <a asp-page="/Index">Início</a><span>›</span>
         <span>@a.Marca</span><span>›</span>
         <span>@a.Titulo</span>
     </div>
@@ -103,7 +103,7 @@ else
 
             @if (mostrarChat)
             {
-                <a href="/Mensagens?anuncioId=@a.Id&outroId=@a.VendedorId"
+                <a asp-page="/Mensagens/Index" asp-route-anuncioId="@a.Id" asp-route-outroId="@a.VendedorId"
                    class="btn-contacto"
                    style="width:100%;display:block;text-align:center;margin-top:12px;text-decoration:none">
                     💬 Contactar Vendedor
@@ -113,7 +113,7 @@ else
             @if (!User.Identity?.IsAuthenticated ?? true)
             {
                 <p style="margin-top:12px;font-size:.85rem;color:#888">
-                    <a href="/Auth/Login" style="color:#e63946">Inicia sessão</a> para contactar o vendedor.
+                    <a asp-page="/Auth/Login" style="color:#e63946">Inicia sessão</a> para contactar o vendedor.
                 </p>
             }
             @if (eVendedor)

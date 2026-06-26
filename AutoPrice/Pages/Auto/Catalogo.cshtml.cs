@@ -10,17 +10,22 @@ namespace AutoPrice.Pages
 
         public List<VeiculoListaItem> Veiculos { get; set; } = new();
 
+        public string? TipoAtual { get; set; }
+
         public CatalogoModel(IHttpClientFactory clientFactory)
         {
             _clientFactory = clientFactory;
         }
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(string? tipo)
         {
+            TipoAtual = tipo;
+
             try
             {
                 var client = _clientFactory.CreateClient("AutoMarketAPI");
-                var response = await client.GetAsync("/api/Anuncios");
+                var url = string.IsNullOrEmpty(tipo) ? "/api/Anuncios" : $"/api/Anuncios?tipo={tipo}";
+                var response = await client.GetAsync(url);
 
                 if (response.IsSuccessStatusCode)
                 {
