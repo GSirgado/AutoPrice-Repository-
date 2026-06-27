@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Text;
 using System.Text.Json;
+using AutoPrice.Models;
 
 namespace AutoPrice.Pages
 {
@@ -25,7 +26,9 @@ namespace AutoPrice.Pages
         [BindProperty] public int CategoriaId { get; set; }
         [BindProperty] public string Tipo { get; set; } = "Carro";
         [BindProperty] public string? ImagensUrls { get; set; }
+        [BindProperty] public int? AnuncioId { get; set; }
 
+        public bool ModoEdicao => AnuncioId.HasValue;
         public List<CategoriaItem> Categorias { get; set; } = new();
         public string? Erro { get; set; }
         public string? Sucesso { get; set; }
@@ -35,11 +38,8 @@ namespace AutoPrice.Pages
             _clientFactory = clientFactory;
         }
 
-        public async Task<IActionResult> OnGetAsync(
-            string? marca, string? modelo, int? ano,
-            decimal? preco, string? combustivel,
-            string? transmissao, string? condicao,
-            string? tipo)
+        public async Task<IActionResult> OnGetAsync(int? id, string? marca, string? modelo, int? ano,
+            decimal? preco, string? combustivel, string? transmissao, string? condicao, string? tipo)
         {
             var token = Request.Cookies["token"];
             if (string.IsNullOrEmpty(token))
@@ -47,22 +47,63 @@ namespace AutoPrice.Pages
 
             Tipo = tipo ?? "Carro";
 
-            if (marca != null) Marca = marca;
-            if (modelo != null) Modelo = modelo;
-            if (ano.HasValue) Ano = ano.Value;
-            if (preco.HasValue) Preco = preco.Value;
-            if (combustivel != null) Combustivel = combustivel;
-            if (transmissao != null) Transmissao = transmissao;
-            if (condicao != null) Condicao = condicao;
+            if (id.HasValue)
+            {
+                AnuncioId = id;
+                var client = _clientFactory.CreateClient("AutoMarketAPI");
+                client.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-            if (!string.IsNullOrEmpty(marca) && !string.IsNullOrEmpty(modelo) && ano.HasValue)
-                Titulo = $"{marca} {modelo} {ano}";
+                var response = await client.GetAsync($"/api/Anuncios/{id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var a = JsonSerializer.Deserialize<AnuncioView>(json,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (a != null)
+                    {
+                        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                        var isAdmin = User.IsInRole("Admin");
+
+                        if (a.VendedorId != userId && !isAdmin)
+                            return RedirectToPage("/Index");
+
+                        Titulo = a.Titulo;
+                        Marca = a.Marca;
+                        Modelo = a.Modelo;
+                        Ano = a.Ano;
+                        Preco = a.Preco;
+                        Kilometragem = a.Kilometragem;
+                        Descricao = a.Descricao;
+                        Combustivel = a.Combustivel;
+                        Transmissao = a.Transmissao;
+                        Cor = a.Cor;
+                        Potencia = a.Potencia;
+                        Condicao = a.Condicao;
+                        CategoriaId = a.CategoriaId;
+                        Tipo = a.Tipo ?? "Carro";
+                        ImagensUrls = a.Imagens != null ? string.Join(",", a.Imagens) : "";
+                    }
+                }
+            }
+            else
+            {
+                if (marca != null) Marca = marca;
+                if (modelo != null) Modelo = modelo;
+                if (ano.HasValue) Ano = ano.Value;
+                if (preco.HasValue) Preco = preco.Value;
+                if (combustivel != null) Combustivel = combustivel;
+                if (transmissao != null) Transmissao = transmissao;
+                if (condicao != null) Condicao = condicao;
+                if (!string.IsNullOrEmpty(marca) && !string.IsNullOrEmpty(modelo) && ano.HasValue)
+                    Titulo = $"{marca} {modelo} {ano}";
+            }
 
             await CarregarCategorias(Tipo);
             return Page();
         }
 
-        // Handler para upload de imagens via AJAX (resolve o problema do cookie HttpOnly)
         public async Task<IActionResult> OnPostUploadAsync(IFormFile ficheiro)
         {
             var token = Request.Cookies["token"];
@@ -133,16 +174,20 @@ namespace AutoPrice.Pages
                 Encoding.UTF8,
                 "application/json");
 
-            var response = await client.PostAsync("/api/Anuncios", content);
+            HttpResponseMessage response;
+            if (AnuncioId.HasValue)
+                response = await client.PutAsync($"/api/Anuncios/{AnuncioId}", content);
+            else
+                response = await client.PostAsync("/api/Anuncios", content);
 
             if (response.IsSuccessStatusCode)
             {
-                Sucesso = "Anúncio publicado com sucesso!";
+                Sucesso = AnuncioId.HasValue ? "Anúncio atualizado com sucesso!" : "Anúncio publicado com sucesso!";
                 return Page();
             }
             else
             {
-                Erro = "Erro ao publicar o anúncio. Tente novamente.";
+                Erro = "Erro ao guardar o anúncio. Tente novamente.";
                 return Page();
             }
         }
@@ -153,7 +198,6 @@ namespace AutoPrice.Pages
             {
                 var client = _clientFactory.CreateClient("AutoMarketAPI");
                 var response = await client.GetAsync($"/api/Categorias?tipo={tipo}");
-
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();

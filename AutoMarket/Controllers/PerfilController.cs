@@ -43,9 +43,20 @@ namespace AutoMarket.Controllers
             var user = await _userManager.FindByIdAsync(userId!);
             if (user == null) return NotFound();
 
-            // Só atualiza os campos que foram preenchidos
             if (!string.IsNullOrEmpty(dto.NomeCompleto))
                 user.NomeCompleto = dto.NomeCompleto;
+
+            if (!string.IsNullOrEmpty(dto.Email) && dto.Email != user.Email)
+            {
+                var emailExiste = await _userManager.FindByEmailAsync(dto.Email);
+                if (emailExiste != null)
+                    return BadRequest(new { mensagem = "Este email já está em uso." });
+
+                user.Email = dto.Email;
+                user.UserName = dto.Email;
+                user.NormalizedEmail = dto.Email.ToUpper();
+                user.NormalizedUserName = dto.Email.ToUpper();
+            }
 
             if (dto.Telefone != null)
                 user.PhoneNumber = dto.Telefone;
@@ -60,7 +71,6 @@ namespace AutoMarket.Controllers
             if (!resultado.Succeeded)
                 return BadRequest(new { erros = resultado.Errors.Select(e => e.Description) });
 
-            // Só altera password se ambos os campos foram preenchidos
             if (!string.IsNullOrEmpty(dto.NovaPassword) && !string.IsNullOrEmpty(dto.PasswordAtual))
             {
                 var resultadoPassword = await _userManager.ChangePasswordAsync(
@@ -77,6 +87,7 @@ namespace AutoMarket.Controllers
     public class AtualizarPerfilDto
     {
         public string? NomeCompleto { get; set; }
+        public string? Email { get; set; }
         public string? Telefone { get; set; }
         public string? Localizacao { get; set; }
         public string? FotoUrl { get; set; }

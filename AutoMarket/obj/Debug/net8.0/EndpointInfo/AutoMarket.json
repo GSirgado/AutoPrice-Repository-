@@ -758,6 +758,10 @@
             "type": "string",
             "nullable": true
           },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
           "telefone": {
             "type": "string",
             "nullable": true

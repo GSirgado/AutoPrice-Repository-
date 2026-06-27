@@ -17,8 +17,8 @@ namespace AutoPrice.Pages
         [BindProperty] public string? PasswordAtual { get; set; }
         [BindProperty] public string? NovaPassword { get; set; }
         [BindProperty] public string? ConfirmarPassword { get; set; }
+        [BindProperty] public string? Email { get; set; }
 
-        public string? Email { get; set; }
         public string? Erro { get; set; }
         public string? Sucesso { get; set; }
 
@@ -33,23 +33,7 @@ namespace AutoPrice.Pages
             if (string.IsNullOrEmpty(token))
                 return RedirectToPage("/Auth/Login");
 
-            var client = _clientFactory.CreateClient("AutoMarketAPI");
-            client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-
-            var response = await client.GetAsync("/api/perfil");
-            if (response.IsSuccessStatusCode)
-            {
-                if (!string.IsNullOrWhiteSpace(NomeCompleto))
-                    Response.Cookies.Append("nomeCompleto", NomeCompleto);
-
-                // Guardar foto no cookie
-                if (!string.IsNullOrEmpty(FotoUrl))
-                    Response.Cookies.Append("fotoUrl", FotoUrl);
-
-                Sucesso = "Perfil atualizado com sucesso!";
-            }
-
+            await CarregarEmail(token);
             return Page();
         }
 
@@ -59,7 +43,6 @@ namespace AutoPrice.Pages
             if (string.IsNullOrEmpty(token))
                 return RedirectToPage("/Auth/Login");
 
-            // Validar password
             if (!string.IsNullOrEmpty(NovaPassword))
             {
                 if (string.IsNullOrEmpty(PasswordAtual))
@@ -80,7 +63,6 @@ namespace AutoPrice.Pages
             client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-            // Upload de foto se foi enviada
             if (FotoFicheiro != null && FotoFicheiro.Length > 0)
             {
                 using var formData = new MultipartFormDataContent();
@@ -105,10 +87,10 @@ namespace AutoPrice.Pages
                 }
             }
 
-            // Enviar apenas o que foi preenchido
             var body = new
             {
                 nomeCompleto = string.IsNullOrWhiteSpace(NomeCompleto) ? null : NomeCompleto,
+                email = string.IsNullOrWhiteSpace(Email) ? null : Email,
                 telefone = string.IsNullOrWhiteSpace(Telefone) ? null : Telefone,
                 localizacao = string.IsNullOrWhiteSpace(Localizacao) ? null : Localizacao,
                 fotoUrl = string.IsNullOrWhiteSpace(FotoUrl) ? null : FotoUrl,
@@ -156,7 +138,6 @@ namespace AutoPrice.Pages
                     var perfil = JsonSerializer.Deserialize<JsonElement>(json);
                     Email = perfil.GetProperty("email").GetString() ?? "";
 
-                    // Repor campos com os valores atuais se estiverem vazios
                     if (string.IsNullOrEmpty(NomeCompleto))
                         NomeCompleto = perfil.GetProperty("nomeCompleto").GetString() ?? "";
                     if (string.IsNullOrEmpty(Telefone))

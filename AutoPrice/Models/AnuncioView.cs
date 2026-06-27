@@ -15,6 +15,8 @@
         public string? Cor { get; set; }
         public int? Potencia { get; set; }
         public string? Transmissao { get; set; }
+        public string? Tipo { get; set; }
+        public int CategoriaId { get; set; }
         public string? CategoriaNome { get; set; }
         public string? VendedorNome { get; set; }
         public string? VendedorId { get; set; }

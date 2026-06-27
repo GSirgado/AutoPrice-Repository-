@@ -2,7 +2,7 @@
 @model AutoPrice.Pages.VenderModel
 
 @{
-    ViewData["Title"] = "Vender Veículo";
+    ViewData["Title"] = Model.ModoEdicao ? "Editar Anúncio" : "Vender Veículo";
 }
 
 @section Styles {
@@ -10,8 +10,8 @@
 }
 
 <div class="vender-wrapper">
-    <h1 class="vender-title">Publicar <span>Anúncio</span></h1>
-    <p class="vender-sub">Preenche os detalhes do teu veículo para o colocar à venda.</p>
+    <h1 class="vender-title">@(Model.ModoEdicao ? "Editar" : "Publicar") <span>Anúncio</span></h1>
+    <p class="vender-sub">@(Model.ModoEdicao ? "Atualiza os detalhes do teu veículo." : "Preenche os detalhes do teu veículo para o colocar à venda.")</p>
 
     @if (!string.IsNullOrEmpty(Model.Sucesso))
     {
@@ -34,6 +34,7 @@
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="ImagensUrls" id="imagensUrls" />
         <input type="hidden" asp-for="Tipo" />
+        <input type="hidden" asp-for="AnuncioId" />
 
         <div class="vender-card">
 
@@ -178,14 +179,24 @@
                 <div class="vender-alert erro">✕ @Model.Erro</div>
             }
 
-            <button type="submit" class="btn-publicar">Publicar Anúncio</button>
+            <button type="submit" class="btn-publicar">@(Model.ModoEdicao ? "Guardar Alterações" : "Publicar Anúncio")</button>
         </div>
     </form>
 </div>
 
 @section Scripts {
     <script>
-        let imagensCarregadas = [];
+        let imagensCarregadas = @Html.Raw(
+                    string.IsNullOrEmpty(Model.ImagensUrls)
+                    ? "[]"
+                    : System.Text.Json.JsonSerializer.Serialize(
+                            Model.ImagensUrls.Split(',').Where(u => !string.IsNullOrWhiteSpace(u)).ToList())
+            );
+
+    window.addEventListener('DOMContentLoaded', () => {
+        imagensCarregadas.forEach(url => adicionarPreview(url));
+        atualizarCampoOculto();
+    });
 
         async function uploadImagens(input) {
             if (!input.files || input.files.length === 0) return;
@@ -202,9 +213,7 @@
 
                     const response = await fetch('?handler=Upload', {
                         method: 'POST',
-                        headers: {
-                            'RequestVerificationToken': tokenAntiForgery
-                        },
+                        headers: { 'RequestVerificationToken': tokenAntiForgery },
                         body: formData
                     });
 
@@ -233,7 +242,7 @@
             div.className = 'preview-item';
             div.dataset.url = url;
 
-            const ehCapa = imagensCarregadas.length === 1;
+            const ehCapa = imagensCarregadas.indexOf(url) === 0;
 
             div.innerHTML = `
                 <img src="${url}" alt="Preview" />
