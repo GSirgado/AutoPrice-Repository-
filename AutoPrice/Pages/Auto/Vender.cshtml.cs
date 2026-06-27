@@ -30,6 +30,7 @@ namespace AutoPrice.Pages
 
         public bool ModoEdicao => AnuncioId.HasValue;
         public List<CategoriaItem> Categorias { get; set; } = new();
+        public List<CategoriaItem> TodasCategorias { get; set; } = new();
         public string? Erro { get; set; }
         public string? Sucesso { get; set; }
 
@@ -197,12 +198,16 @@ namespace AutoPrice.Pages
             try
             {
                 var client = _clientFactory.CreateClient("AutoMarketAPI");
-                var response = await client.GetAsync($"/api/Categorias?tipo={tipo}");
+
+                // Carregar todas as categorias de uma vez para filtragem no cliente
+                var response = await client.GetAsync("/api/Categorias");
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    Categorias = JsonSerializer.Deserialize<List<CategoriaItem>>(json,
+                    TodasCategorias = JsonSerializer.Deserialize<List<CategoriaItem>>(json,
                         new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
+                    // Categorias visíveis no load = filtradas pelo tipo atual
+                    Categorias = TodasCategorias.Where(c => c.Tipo == tipo).ToList();
                 }
             }
             catch (Exception ex)
@@ -216,5 +221,6 @@ namespace AutoPrice.Pages
     {
         public int Id { get; set; }
         public string Nome { get; set; } = string.Empty;
+        public string Tipo { get; set; } = "Carro";
     }
 }

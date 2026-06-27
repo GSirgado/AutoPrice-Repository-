@@ -572,12 +572,6 @@ C:\Users\joaom\OneDrive\Ambiente de Trabalho\AutoPRICE\AutoMarket\obj\Debug\net8
 C:\Users\joaom\OneDrive\Ambiente de Trabalho\AutoPRICE\AutoMarket\obj\Debug\net8.0\AutoMarket.pdb
 C:\Users\joaom\OneDrive\Ambiente de Trabalho\AutoPRICE\AutoMarket\obj\Debug\net8.0\AutoMarket.genruntimeconfig.cache
 C:\Users\joaom\OneDrive\Ambiente de Trabalho\AutoPRICE\AutoMarket\obj\Debug\net8.0\ref\AutoMarket.dll
-C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets\msbuild.AutoMarket.Microsoft.AspNetCore.StaticWebAssets.props
-C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets\msbuild.AutoMarket.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
-C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets\msbuild.build.AutoMarket.props
-C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.AutoMarket.props
-C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.AutoMarket.props
-C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets.pack.json
 C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\joaom\OneDrive\Ambiente de Trabalho\DW_26406_25949\AutoMarket\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\joaom\OneDrive\Ambiente de Trabalho\DW_26406_25949\AutoMarket\bin\Debug\net8.0\appsettings.json
@@ -725,3 +719,9 @@ C:\Users\joaom\OneDrive\Ambiente de Trabalho\DW_26406_25949\AutoMarket\obj\Debug
 C:\Users\joaom\OneDrive\Ambiente de Trabalho\DW_26406_25949\AutoMarket\obj\Debug\net8.0\AutoMarket.pdb
 C:\Users\joaom\OneDrive\Ambiente de Trabalho\DW_26406_25949\AutoMarket\obj\Debug\net8.0\AutoMarket.genruntimeconfig.cache
 C:\Users\joaom\OneDrive\Ambiente de Trabalho\DW_26406_25949\AutoMarket\obj\Debug\net8.0\ref\AutoMarket.dll
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\rjimswa.dswa.cache.json
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\staticwebassets.build.json.cache
+C:\Users\guisi\source\repos\AutoPrice-Repository-\AutoMarket\obj\Debug\net8.0\swae.build.ex.cache

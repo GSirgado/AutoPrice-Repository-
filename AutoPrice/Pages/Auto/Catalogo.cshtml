@@ -91,9 +91,12 @@
             <label class="vl-filter-label">Categoria</label>
             <select class="vl-select" id="vl-cat">
                 <option value="">Todas as categorias</option>
-                @foreach (var c in cats)
+                @foreach (var v in Model.Veiculos.Where(v => !string.IsNullOrEmpty(v.Categoria))
+                    .GroupBy(v => v.Categoria)
+                    .Select(g => new { Nome = g.Key, Tipo = g.First().Tipo.ToLower() })
+                    .OrderBy(c => c.Nome))
                 {
-                    <option value="@c!.ToLower()">@c</option>
+                    <option value="@v.Nome!.ToLower()" data-tipo="@v.Tipo">@v.Nome</option>
                 }
             </select>
         </div>
@@ -240,6 +243,25 @@
 
         document.getElementById('vl-count').textContent = document.querySelectorAll('.vl-card').length;
 
+        // Filtrar categorias por tipo
+        function filtrarCategoriasPorTipo(tipo) {
+            const catSel = document.getElementById('vl-cat');
+            const valorAtual = catSel.value;
+            Array.from(catSel.options).forEach(opt => {
+                if (!opt.value) return; // "Todas as categorias"
+                opt.style.display = (!tipo || opt.dataset.tipo === tipo) ? '' : 'none';
+            });
+            // Reset se a categoria atual não pertence ao tipo
+            const optAtual = catSel.querySelector(`option[value="${valorAtual}"]`);
+            if (optAtual && optAtual.style.display === 'none') {
+                catSel.value = '';
+            }
+        }
+
+        document.getElementById('vl-tipo').addEventListener('change', function () {
+            filtrarCategoriasPorTipo(this.value);
+        });
+
         // Aplicar filtro automático se vier tipo na URL
         const urlParams = new URLSearchParams(window.location.search);
         const tipoUrl = urlParams.get('tipo');
@@ -250,6 +272,7 @@
                     sel.value = opt.value;
                 }
             });
+            filtrarCategoriasPorTipo(sel.value);
             vlAplicar();
         }
     })();

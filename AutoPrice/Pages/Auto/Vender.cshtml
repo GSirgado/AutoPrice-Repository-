@@ -33,7 +33,6 @@
     <form method="post" id="formVender" enctype="multipart/form-data">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="ImagensUrls" id="imagensUrls" />
-        <input type="hidden" asp-for="Tipo" />
         <input type="hidden" asp-for="AnuncioId" />
 
         <div class="vender-card">
@@ -64,12 +63,32 @@
                                placeholder="Ex: BMW Série 3 320d - Excelente estado" required />
                     </div>
                     <div class="form-group">
+                        <label>Tipo de Veículo</label>
+                        @if (Model.ModoEdicao)
+                        {
+                            <select id="selectTipo" name="Tipo" disabled="disabled">
+                                <option value="Carro" selected="@(Model.Tipo == "Carro")">Carro</option>
+                                <option value="Mota" selected="@(Model.Tipo == "Mota")">Mota</option>
+                            </select>
+                            <input type="hidden" name="Tipo" value="@Model.Tipo" />
+                        }
+                        else
+                        {
+                            <select id="selectTipo" name="Tipo">
+                                <option value="Carro" selected="@(Model.Tipo == "Carro")">Carro</option>
+                                <option value="Mota" selected="@(Model.Tipo == "Mota")">Mota</option>
+                            </select>
+                        }
+                    </div>
+                    <div class="form-group">
                         <label>Categoria</label>
-                        <select asp-for="CategoriaId" required>
+                        <select id="selectCategoria" asp-for="CategoriaId" required>
                             <option value="">Selecionar categoria</option>
-                            @foreach (var cat in Model.Categorias)
+                            @foreach (var cat in Model.TodasCategorias)
                             {
-                                <option value="@cat.Id">@cat.Nome</option>
+                                <option value="@cat.Id"
+                                        data-tipo="@cat.Tipo"
+                                        style="@(cat.Tipo != Model.Tipo ? "display:none" : "")">@cat.Nome</option>
                             }
                         </select>
                     </div>
@@ -150,12 +169,12 @@
                 <div class="vender-grid">
                     <div class="form-group">
                         <label>Preço (€)</label>
-                        <input type="number" asp-for="Preco" placeholder="Ex: 25000"
-                               min="0" step="100" required />
+                        <input type="number" asp-for="Preco" placeholder="Ex: 2500"
+                               min="0" step="1" required />
                     </div>
                     <div class="form-group">
                         <label>Localização</label>
-                        <input type="text" asp-for="Localizacao" placeholder="Ex: Lisboa" />
+                        <input type="text" asp-for="Localizacao" placeholder="Ex: Lisboa" required/>
                     </div>
                 </div>
             </div>
@@ -186,89 +205,116 @@
 
 @section Scripts {
     <script>
-        let imagensCarregadas = @Html.Raw(
-                    string.IsNullOrEmpty(Model.ImagensUrls)
-                    ? "[]"
-                    : System.Text.Json.JsonSerializer.Serialize(
-                            Model.ImagensUrls.Split(',').Where(u => !string.IsNullOrWhiteSpace(u)).ToList())
-            );
+            let imagensCarregadas = @Html.Raw(
+                                            string.IsNullOrEmpty(Model.ImagensUrls)
+                                            ? "[]"
+                                            : System.Text.Json.JsonSerializer.Serialize(
+                                                            Model.ImagensUrls.Split(',').Where(u => !string.IsNullOrWhiteSpace(u)).ToList())
+                            );
 
-    window.addEventListener('DOMContentLoaded', () => {
-        imagensCarregadas.forEach(url => adicionarPreview(url));
-        atualizarCampoOculto();
-    });
+        window.addEventListener('DOMContentLoaded', () => {
+            imagensCarregadas.forEach(url => adicionarPreview(url));
+            atualizarCampoOculto();
+        });
 
-        async function uploadImagens(input) {
-            if (!input.files || input.files.length === 0) return;
+            async function uploadImagens(input) {
+                if (!input.files || input.files.length === 0) return;
 
-            document.getElementById('uploadLoading').style.display = 'block';
-            document.getElementById('uploadArea').style.pointerEvents = 'none';
+                document.getElementById('uploadLoading').style.display = 'block';
+                document.getElementById('uploadArea').style.pointerEvents = 'none';
 
-            const tokenAntiForgery = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                const tokenAntiForgery = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
 
-            for (const file of input.files) {
-                try {
-                    const formData = new FormData();
-                    formData.append('ficheiro', file);
+                for (const file of input.files) {
+                    try {
+                        const formData = new FormData();
+                        formData.append('ficheiro', file);
 
-                    const response = await fetch('?handler=Upload', {
-                        method: 'POST',
-                        headers: { 'RequestVerificationToken': tokenAntiForgery },
-                        body: formData
-                    });
+                        const response = await fetch('?handler=Upload', {
+                            method: 'POST',
+                            headers: { 'RequestVerificationToken': tokenAntiForgery },
+                            body: formData
+                        });
 
-                    if (response.ok) {
-                        const data = await response.json();
-                        imagensCarregadas.push(data.url);
-                        adicionarPreview(data.url);
-                    } else {
-                        const err = await response.json();
-                        alert('Erro: ' + (err.mensagem || 'Erro ao fazer upload.'));
+                        if (response.ok) {
+                            const data = await response.json();
+                            imagensCarregadas.push(data.url);
+                            adicionarPreview(data.url);
+                        } else {
+                            const err = await response.json();
+                            alert('Erro: ' + (err.mensagem || 'Erro ao fazer upload.'));
+                        }
+                    } catch (e) {
+                        alert('Erro ao fazer upload de uma das imagens.');
                     }
-                } catch (e) {
-                    alert('Erro ao fazer upload de uma das imagens.');
+                }
+
+                atualizarCampoOculto();
+                document.getElementById('uploadLoading').style.display = 'none';
+                document.getElementById('uploadArea').style.pointerEvents = 'auto';
+                input.value = '';
+            }
+
+            function adicionarPreview(url) {
+                const grid = document.getElementById('uploadPreviewGrid');
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                div.dataset.url = url;
+
+                const ehCapa = imagensCarregadas.indexOf(url) === 0;
+
+                div.innerHTML = `
+                    <img src="${url}" alt="Preview" />
+                    ${ehCapa ? '<span class="preview-item-cover">Capa</span>' : ''}
+                    <button type="button" class="preview-item-remove" onclick="removerImagem(this)">✕</button>
+                `;
+                grid.appendChild(div);
+            }
+
+            function removerImagem(btn) {
+                const item = btn.closest('.preview-item');
+                const url = item.dataset.url;
+                imagensCarregadas = imagensCarregadas.filter(u => u !== url);
+                item.remove();
+                atualizarCampoOculto();
+                renderizarCapaNovamente();
+            }
+
+            function renderizarCapaNovamente() {
+                const grid = document.getElementById('uploadPreviewGrid');
+                grid.innerHTML = '';
+                imagensCarregadas.forEach(url => adicionarPreview(url));
+            }
+
+            function atualizarCampoOculto() {
+                document.getElementById('imagensUrls').value = imagensCarregadas.join(',');
+            }
+
+            // Filtrar categorias por tipo (sem fetch - tudo já está no HTML)
+            const selectTipo = document.getElementById('selectTipo');
+            const selectCategoria = document.getElementById('selectCategoria');
+
+            function filtrarCategorias(tipo) {
+                let primeirVisivel = null;
+                Array.from(selectCategoria.options).forEach(opt => {
+                    if (!opt.value) return; // placeholder
+                    const pertence = opt.dataset.tipo === tipo;
+                    opt.style.display = pertence ? '' : 'none';
+                    if (pertence && !primeirVisivel) primeirVisivel = opt;
+                });
+                // Se a categoria atual não pertence ao tipo, resetar
+                const atual = selectCategoria.querySelector(`option[value="${selectCategoria.value}"]`);
+                if (!atual || atual.style.display === 'none') {
+                    selectCategoria.value = '';
                 }
             }
 
-            atualizarCampoOculto();
-            document.getElementById('uploadLoading').style.display = 'none';
-            document.getElementById('uploadArea').style.pointerEvents = 'auto';
-            input.value = '';
-        }
-
-        function adicionarPreview(url) {
-            const grid = document.getElementById('uploadPreviewGrid');
-            const div = document.createElement('div');
-            div.className = 'preview-item';
-            div.dataset.url = url;
-
-            const ehCapa = imagensCarregadas.indexOf(url) === 0;
-
-            div.innerHTML = `
-                <img src="${url}" alt="Preview" />
-                ${ehCapa ? '<span class="preview-item-cover">Capa</span>' : ''}
-                <button type="button" class="preview-item-remove" onclick="removerImagem(this)">✕</button>
-            `;
-            grid.appendChild(div);
-        }
-
-        function removerImagem(btn) {
-            const item = btn.closest('.preview-item');
-            const url = item.dataset.url;
-            imagensCarregadas = imagensCarregadas.filter(u => u !== url);
-            item.remove();
-            atualizarCampoOculto();
-            renderizarCapaNovamente();
-        }
-
-        function renderizarCapaNovamente() {
-            const grid = document.getElementById('uploadPreviewGrid');
-            grid.innerHTML = '';
-            imagensCarregadas.forEach(url => adicionarPreview(url));
-        }
-
-        function atualizarCampoOculto() {
-            document.getElementById('imagensUrls').value = imagensCarregadas.join(',');
-        }
+            if (selectTipo) {
+                selectTipo.addEventListener('change', function () {
+                    filtrarCategorias(this.value);
+                });
+                // Aplicar filtro imediatamente no load
+                filtrarCategorias(selectTipo.value);
+            }
     </script>
 }
