@@ -1,0 +1,151 @@
+﻿.sobre-wrapper {
+    max-width: 860px;
+    margin: 60px auto;
+    padding: 0 24px 80px;
+}
+
+.sobre-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 2.6rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+    .sobre-title span {
+        color: #c9a84c;
+    }
+
+.sobre-sub {
+    color: #888;
+    font-size: 0.95rem;
+    margin-bottom: 48px;
+}
+
+.sobre-card {
+    background: #13161d;
+    border: 1px solid #1e2330;
+    border-radius: 12px;
+    padding: 32px 36px;
+    margin-bottom: 24px;
+}
+
+.sobre-card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #c9a84c;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #1e2330;
+}
+
+.sobre-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    font-size: 0.95rem;
+}
+
+.sobre-label {
+    color: #888;
+    min-width: 130px;
+    flex-shrink: 0;
+}
+
+.sobre-value {
+    color: #e8e8e8;
+    font-weight: 500;
+}
+
+.sobre-lib-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #1a1e28;
+    font-size: 0.93rem;
+}
+
+    .sobre-lib-item:last-child {
+        border-bottom: none;
+    }
+
+.sobre-lib-name {
+    font-weight: 600;
+    color: #e8e8e8;
+}
+
+.sobre-lib-desc {
+    color: #888;
+    font-size: 0.85rem;
+    margin-top: 2px;
+}
+
+.sobre-lib-source {
+    color: #c9a84c;
+    font-size: 0.82rem;
+    text-decoration: none;
+}
+
+    .sobre-lib-source:hover {
+        text-decoration: underline;
+    }
+
+.sobre-cred-box {
+    background: #0d1017;
+    border: 1px solid #c9a84c33;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 6px;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.sobre-cred-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 6px;
+    color: #ccc;
+}
+
+    .sobre-cred-row:last-child {
+        margin-bottom: 0;
+    }
+
+.sobre-cred-key {
+    color: #c9a84c;
+    min-width: 80px;
+}
+
+.autor-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #0d1017;
+    border: 1px solid #1e2330;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+
+.autor-num {
+    background: #c9a84c;
+    color: #000;
+    font-weight: 700;
+    font-size: 0.78rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.autor-nome {
+    font-weight: 500;
+    color: #e8e8e8;
+}
+
+</style >

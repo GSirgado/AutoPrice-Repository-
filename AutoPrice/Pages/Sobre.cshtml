@@ -1,0 +1,102 @@
+﻿@page
+@{
+    ViewData["Title"] = "Sobre o Projeto";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/sobre.css" asp-append-version="true" />
+}
+
+<div class="sobre-wrapper">
+    <h1 class="sobre-title">Sobre o <span>Projeto</span></h1>
+    <p class="sobre-sub">Informação académica, autores, bibliotecas utilizadas e credenciais de acesso.</p>
+
+    <!-- INFORMAÇÃO ACADÉMICA -->
+    <div class="sobre-card">
+        <div class="sobre-card-title">📚 Informação Académica</div>
+        <div class="sobre-row">
+            <span class="sobre-label">Curso</span>
+            <span class="sobre-value">Licenciatura em Engenharia Informática</span>
+        </div>
+        <div class="sobre-row">
+            <span class="sobre-label">Disciplina</span>
+            <span class="sobre-value">Desenvolvimento Web — 2º Ano, 2º Semestre</span>
+        </div>
+        <div class="sobre-row">
+            <span class="sobre-label">Ano Letivo</span>
+            <span class="sobre-value">2025 / 2026</span>
+        </div>
+        <div class="sobre-row">
+            <span class="sobre-label">Instituição</span>
+            <span class="sobre-value">Instituto Politécnico de Tomar</span>
+        </div>
+    </div>
+
+    <!-- AUTORES -->
+    <div class="sobre-card">
+        <div class="sobre-card-title">👥 Autores</div>
+        <div>
+            <div class="autor-badge">
+                <span class="autor-num">25949</span>
+                <span class="autor-nome">Guilherme Sirgado</span>
+            </div>
+            <div class="autor-badge">
+                <span class="autor-num">26406</span>
+                <span class="autor-nome">João Marques</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- BIBLIOTECAS E FRAMEWORKS -->
+    <div class="sobre-card">
+        <div class="sobre-card-title">🔧 Bibliotecas e Frameworks Utilizados</div>
+
+        <div class="sobre-lib-item">
+            <div>
+                <div class="sobre-lib-name">Bootstrap 5</div>
+                <div class="sobre-lib-desc">Framework CSS para componentes e layout responsivo</div>
+            </div>
+            <a class="sobre-lib-source" href="https://getbootstrap.com" target="_blank">getbootstrap.com</a>
+        </div>
+
+        <div class="sobre-lib-item">
+            <div>
+                <div class="sobre-lib-name">SignalR</div>
+                <div class="sobre-lib-desc">Comunicação em tempo real para o sistema de mensagens/chat</div>
+            </div>
+            <a class="sobre-lib-source" href="https://dotnet.microsoft.com/apps/aspnet/signalr" target="_blank">microsoft.com</a>
+        </div>
+
+        <div class="sobre-lib-item">
+            <div>
+                <div class="sobre-lib-name">JSON Web Tokens (JWT)</div>
+                <div class="sobre-lib-desc">Autenticação e autorização de utilizadores via tokens</div>
+            </div>
+            <a class="sobre-lib-source" href="https://jwt.io" target="_blank">jwt.io</a>
+        </div>
+
+        <div class="sobre-lib-item">
+            <div>
+                <div class="sobre-lib-name">Azure Blob Storage</div>
+                <div class="sobre-lib-desc">Armazenamento de imagens dos anúncios na cloud</div>
+            </div>
+            <a class="sobre-lib-source" href="https://azure.microsoft.com/products/storage/blobs" target="_blank">azure.microsoft.com</a>
+        </div>
+
+        <div class="sobre-lib-item">
+            <div>
+                <div class="sobre-lib-name">Entity Framework Core</div>
+                <div class="sobre-lib-desc">ORM para acesso e gestão da base de dados SQL Server</div>
+            </div>
+            <a class="sobre-lib-source" href="https://learn.microsoft.com/ef/core" target="_blank">learn.microsoft.com</a>
+        </div>
+
+        <div class="sobre-lib-item">
+            <div>
+                <div class="sobre-lib-name">ASP.NET Core Identity</div>
+                <div class="sobre-lib-desc">Sistema de gestão de utilizadores, roles e autenticação</div>
+            </div>
+            <a class="sobre-lib-source" href="https://learn.microsoft.com/aspnet/core/security/authentication/identity" target="_blank">learn.microsoft.com</a>
+        </div>
+    </div>
+</div>

@@ -30,6 +30,8 @@
                 </div>
             </div>
 
+            <a asp-page="/Sobre">Sobre</a>
+
             @if (Context.Request.Cookies["token"] != null)
             {
                 var fotoUser = Context.Request.Cookies["fotoUrl"];
