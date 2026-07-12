@@ -1,10 +1,6 @@
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using System.Text.Json;
 
 namespace AutoPrice.Pages.Auth
@@ -32,7 +28,7 @@ namespace AutoPrice.Pages.Auth
             var body = new { email = Email, password = Password };
             var content = new StringContent(
                 JsonSerializer.Serialize(body),
-                Encoding.UTF8,
+                System.Text.Encoding.UTF8,
                 "application/json");
 
             var response = await client.PostAsync("/api/auth/login", content);
@@ -44,42 +40,18 @@ namespace AutoPrice.Pages.Auth
                 var token = resultado.GetProperty("token").GetString();
                 var nome = resultado.GetProperty("nomeCompleto").GetString();
 
-                // Decodificar o JWT PRIMEIRO
-                var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadJwtToken(token);
-
-                // Guardar cookies
                 Response.Cookies.Append("token", token!,
                     new CookieOptions { HttpOnly = false, SameSite = SameSiteMode.Strict });
-
-                var userId = jwtToken.Claims.FirstOrDefault(c =>
-                    c.Type == "sub" ||
-                    c.Type == ClaimTypes.NameIdentifier)?.Value;
-                if (!string.IsNullOrEmpty(userId))
-                    Response.Cookies.Append("userId", userId);
-
                 Response.Cookies.Append("nomeCompleto", nome!);
 
-                // Claims e autenticação por cookie
-                var claims = jwtToken.Claims.ToList();
-                var roleClaims = claims.Where(c => c.Type == "role" || c.Type == ClaimTypes.Role).ToList();
-                foreach (var rc in roleClaims)
-                {
-                    if (rc.Type != ClaimTypes.Role)
-                        claims.Add(new Claim(ClaimTypes.Role, rc.Value));
-                }
-
-                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var principal = new ClaimsPrincipal(identity);
-
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    principal,
-                    new AuthenticationProperties
-                    {
-                        IsPersistent = true,
-                        ExpiresUtc = jwtToken.ValidTo
-                    });
+                // Extrair o Id do utilizador a partir do JWT (só para uso do JS no chat/Mensagens,
+                // não para autenticação/autorização — isso já é feito pelo JwtBearer no Program.cs)
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+                var userId = jwtToken.Claims.FirstOrDefault(c =>
+                    c.Type == "sub" || c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                    Response.Cookies.Append("userId", userId);
 
                 // Ir buscar a foto do perfil
                 var clientPerfil = _clientFactory.CreateClient("AutoMarketAPI");

@@ -122,8 +122,10 @@
             if (connection && connection.state === signalR.HubConnectionState.Connected) {
                 try {
                     await connection.invoke("EntrarNaSala", anuncioId, outroId);
+                    definirStatus("Ligado ✓", "ligado");
                 } catch (e) {
                     console.warn("EntrarNaSala:", e);
+                    definirStatus("Erro de ligação.", "");
                 }
             }
 
@@ -211,6 +213,7 @@
                 try {
                     await ligarSignalR();
                     await connection.invoke("EntrarNaSala", conversaAtiva.anuncioId, conversaAtiva.outroId);
+                    definirStatus("Ligado ✓", "ligado");
                 } catch (e) {
                     definirStatus("Erro de ligação.", "");
                     return;
