@@ -29,7 +29,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
-app.UseAuthentication();   // <-- TEM de vir antes do UseAuthorization
+app.UseAuthentication();  
 app.UseAuthorization();
 
 app.MapRazorPages();

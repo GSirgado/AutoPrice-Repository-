@@ -28,6 +28,21 @@ namespace AutoPrice.Pages.AutoPages
                     var json = await response.Content.ReadAsStringAsync();
                     Anuncio = JsonSerializer.Deserialize<AnuncioView>(json,
                         new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    var token = Request.Cookies["token"];
+                    if (Anuncio != null && !string.IsNullOrEmpty(token))
+                    {
+                        client.DefaultRequestHeaders.Authorization =
+                            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                        var respFav = await client.GetAsync($"/api/favoritos/{id}/verificar");
+                        if (respFav.IsSuccessStatusCode)
+                        {
+                            var jsonFav = await respFav.Content.ReadAsStringAsync();
+                            var favObj = JsonSerializer.Deserialize<JsonElement>(jsonFav);
+                            Anuncio.EhFavorito = favObj.TryGetProperty("favorito", out var f) && f.GetBoolean();
+                        }
+                    }
                 }
                 else
                 {

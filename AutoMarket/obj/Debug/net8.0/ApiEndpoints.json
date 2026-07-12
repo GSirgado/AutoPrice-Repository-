@@ -357,6 +357,64 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "AutoMarket.Controllers.FavoritosController",
+    "Method": "Listar",
+    "RelativePath": "api/Favoritos",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AutoMarket.Controllers.FavoritosController",
+    "Method": "Adicionar",
+    "RelativePath": "api/Favoritos/{anuncioId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "anuncioId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AutoMarket.Controllers.FavoritosController",
+    "Method": "Remover",
+    "RelativePath": "api/Favoritos/{anuncioId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "anuncioId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AutoMarket.Controllers.FavoritosController",
+    "Method": "Verificar",
+    "RelativePath": "api/Favoritos/{anuncioId}/verificar",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "anuncioId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "AutoMarket.Controllers.PerfilController",
     "Method": "ObterPerfil",
     "RelativePath": "api/Perfil",

@@ -21,5 +21,6 @@
         public string? VendedorNome { get; set; }
         public string? VendedorId { get; set; }
         public List<string> Imagens { get; set; } = new();
+        public bool EhFavorito { get; set; }
     }
 }

@@ -11,7 +11,9 @@ namespace AutoMarket.Data
         public DbSet<Anuncio> Anuncios { get; set; }
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<AnuncioImg> AnuncioImagens { get; set; }
-        public DbSet<Mensagem> Mensagens { get; set; }  // ← NOVO
+        public DbSet<Mensagem> Mensagens { get; set; }
+
+        public DbSet<Favorito> Favoritos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -32,6 +34,21 @@ namespace AutoMarket.Data
                 entity.HasOne(m => m.Anuncio)
                       .WithMany()
                       .HasForeignKey(m => m.AnuncioId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<Favorito>(entity =>
+            {
+                entity.HasKey(f => new { f.UtilizadorId, f.AnuncioId });
+
+                entity.HasOne(f => f.Utilizador)
+                      .WithMany()
+                      .HasForeignKey(f => f.UtilizadorId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(f => f.Anuncio)
+                      .WithMany()
+                      .HasForeignKey(f => f.AnuncioId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
         }

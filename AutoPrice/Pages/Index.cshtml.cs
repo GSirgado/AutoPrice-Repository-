@@ -26,8 +26,7 @@ namespace AutoPrice.Pages
                 {
                     var json = await response.Content.ReadAsStringAsync();
 
-                    // ✅ CORRIGIDO: deserializar com DTO intermédio que mapeia
-                    // "imagens" como lista de objetos {id, url} vindos da API
+                   
                     var anuncios = JsonSerializer.Deserialize<List<AnuncioIndexDto>>(json,
                         new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
@@ -44,7 +43,7 @@ namespace AutoPrice.Pages
                             Combustivel = a.Combustivel,
                             Condicao = a.Condicao,
                             Kilometragem = a.Kilometragem,
-                            // ✅ extrai só as URLs da lista de objetos
+                           
                             Imagens = a.Imagens?.Select(i => i.Url).ToList() ?? new()
                         })
                         .ToList() ?? new();

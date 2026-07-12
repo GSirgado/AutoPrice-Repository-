@@ -79,6 +79,16 @@ else
                 <div class="price-main">€@a.Preco.ToString("N0")</div>
             </div>
 
+            @if (User.Identity?.IsAuthenticated == true && !eVendedor)
+            {
+                <button type="button" id="btn-favorito" class="btn-favorito @(a.EhFavorito ? "ativo" : "")"
+                        onclick="toggleFavorito(@a.Id)"
+                        style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;padding:12px;border-radius:8px;font-weight:600;border:1px solid #e63946;background:@(a.EhFavorito ? "#e63946" : "transparent");color:@(a.EhFavorito ? "#fff" : "#e63946");cursor:pointer">
+                    <span id="favorito-icon">@(a.EhFavorito ? "♥" : "♡")</span>
+                    <span id="favorito-texto">@(a.EhFavorito ? "Nos Favoritos" : "Adicionar aos Favoritos")</span>
+                </button>
+            }
+
             <div class="specs-block">
                 <div class="specs-title">Ficha Técnica</div>
                 <div class="specs-grid">
@@ -172,6 +182,35 @@ else
         } else {
             alert('Erro ao eliminar o anúncio.');
         }
-    
+
+    }
+
+    async function toggleFavorito(anuncioId) {
+        const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1];
+        if (!token) {
+            window.location.href = '/Auth/Login';
+            return;
+        }
+
+        const btn = document.getElementById('btn-favorito');
+        const icon = document.getElementById('favorito-icon');
+        const texto = document.getElementById('favorito-texto');
+        const estaAtivo = btn.classList.contains('ativo');
+
+        const response = await fetch(`https://localhost:7224/api/favoritos/${anuncioId}`, {
+            method: estaAtivo ? 'DELETE' : 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            btn.classList.toggle('ativo');
+            const agoraAtivo = btn.classList.contains('ativo');
+            icon.textContent = agoraAtivo ? '♥' : '♡';
+            texto.textContent = agoraAtivo ? 'Nos Favoritos' : 'Adicionar aos Favoritos';
+            btn.style.background = agoraAtivo ? '#e63946' : 'transparent';
+            btn.style.color = agoraAtivo ? '#fff' : '#e63946';
+        } else {
+            alert('Erro ao atualizar favoritos.');
+        }
     }
 </script>

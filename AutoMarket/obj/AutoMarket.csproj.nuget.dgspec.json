@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\guisi\\source\\repos\\AutoPrice-Repository-\\AutoMarket\\AutoMarket.csproj": {}
+    "C:\\Users\\joaom\\OneDrive\\Ambiente de Trabalho\\AutoPRICE\\AutoMarket\\AutoMarket.csproj": {}
   },
   "projects": {
-    "C:\\Users\\guisi\\source\\repos\\AutoPrice-Repository-\\AutoMarket\\AutoMarket.csproj": {
+    "C:\\Users\\joaom\\OneDrive\\Ambiente de Trabalho\\AutoPRICE\\AutoMarket\\AutoMarket.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\guisi\\source\\repos\\AutoPrice-Repository-\\AutoMarket\\AutoMarket.csproj",
+        "projectUniqueName": "C:\\Users\\joaom\\OneDrive\\Ambiente de Trabalho\\AutoPRICE\\AutoMarket\\AutoMarket.csproj",
         "projectName": "AutoMarket",
-        "projectPath": "C:\\Users\\guisi\\source\\repos\\AutoPrice-Repository-\\AutoMarket\\AutoMarket.csproj",
-        "packagesPath": "C:\\Users\\guisi\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\guisi\\source\\repos\\AutoPrice-Repository-\\AutoMarket\\obj\\",
+        "projectPath": "C:\\Users\\joaom\\OneDrive\\Ambiente de Trabalho\\AutoPRICE\\AutoMarket\\AutoMarket.csproj",
+        "packagesPath": "C:\\Users\\joaom\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\joaom\\OneDrive\\Ambiente de Trabalho\\AUTOPRICE\\AutoMarket\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\guisi\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\joaom\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -30,7 +30,6 @@
         },
         "frameworks": {
           "net8.0": {
-            "framework": "net8.0",
             "targetAlias": "net8.0",
             "projectReferences": {}
           }
@@ -45,11 +44,10 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.300"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
-          "framework": "net8.0",
           "targetAlias": "net8.0",
           "dependencies": {
             "Azure.Storage.Blobs": {
@@ -104,7 +102,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.315/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
