@@ -7,9 +7,11 @@ namespace AutoPrice.Pages.Auth
     {
         public IActionResult OnGet()
         {
-            // Apagar os cookies de autenticação
+            // Apagar todos os cookies de sessão criados no login/registo.
             Response.Cookies.Delete("token");
             Response.Cookies.Delete("nomeCompleto");
+            Response.Cookies.Delete("userId");
+            Response.Cookies.Delete("fotoUrl");
 
             return RedirectToPage("/Index");
         }

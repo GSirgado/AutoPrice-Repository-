@@ -217,6 +217,17 @@
         color: #c0392b;
     }
 
+@media (max-width: 768px) {
+    .editar-wrapper {
+        padding: 24px 20px;
+    }
+
+    .foto-section {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
 @media (max-width: 600px) {
     .editar-grid {
         grid-template-columns: 1fr;

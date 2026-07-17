@@ -209,10 +209,17 @@
         font-weight: 600;
     }
 
+@media (max-width: 900px) {
+    .anuncios-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 700px) {
     .perfil-hero {
         flex-direction: column;
         text-align: center;
+        padding: 28px 20px;
     }
 
     .perfil-badges {
@@ -227,11 +234,5 @@
 
     .anuncios-grid {
         grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 900px) {
-    .anuncios-grid {
-        grid-template-columns: repeat(2, 1fr);
     }
 }

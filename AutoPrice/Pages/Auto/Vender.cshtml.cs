@@ -1,14 +1,17 @@
+using AutoMarket.Data;
+using AutoMarket.Models;
+using AutoPrice.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Text;
-using System.Text.Json;
-using AutoPrice.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace AutoPrice.Pages
 {
     public class VenderModel : PageModel
     {
-        private readonly IHttpClientFactory _clientFactory;
+        private readonly AppDbContext _db;
+        private readonly FotoUploadService _fotoUpload;
 
         [BindProperty] public string Titulo { get; set; } = string.Empty;
         [BindProperty] public string Marca { get; set; } = string.Empty;
@@ -25,7 +28,15 @@ namespace AutoPrice.Pages
         [BindProperty] public string? Localizacao { get; set; }
         [BindProperty] public int CategoriaId { get; set; }
         [BindProperty] public string Tipo { get; set; } = "Carro";
+
+        // Imagens já publicadas que continuam associadas ao anúncio (usado em modo edição
+        // e para as fotos que o utilizador acabou de adicionar mas ainda não foram gravadas).
         [BindProperty] public string? ImagensUrls { get; set; }
+
+        // Ficheiros novos escolhidos no formulário — só são enviados para o Storage
+        // quando o formulário é mesmo submetido, não a cada foto selecionada.
+        [BindProperty] public List<IFormFile>? NovosFicheiros { get; set; }
+
         [BindProperty] public int? AnuncioId { get; set; }
 
         public bool ModoEdicao => AnuncioId.HasValue;
@@ -34,16 +45,16 @@ namespace AutoPrice.Pages
         public string? Erro { get; set; }
         public string? Sucesso { get; set; }
 
-        public VenderModel(IHttpClientFactory clientFactory)
+        public VenderModel(AppDbContext db, FotoUploadService fotoUpload)
         {
-            _clientFactory = clientFactory;
+            _db = db;
+            _fotoUpload = fotoUpload;
         }
 
         public async Task<IActionResult> OnGetAsync(int? id, string? marca, string? modelo, int? ano,
             decimal? preco, string? combustivel, string? transmissao, string? condicao, string? tipo)
         {
-            var token = Request.Cookies["token"];
-            if (string.IsNullOrEmpty(token))
+            if (User.Identity?.IsAuthenticated != true)
                 return RedirectToPage("/Auth/Login");
 
             Tipo = tipo ?? "Carro";
@@ -51,41 +62,34 @@ namespace AutoPrice.Pages
             if (id.HasValue)
             {
                 AnuncioId = id;
-                var client = _clientFactory.CreateClient("AutoMarketAPI");
-                client.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-                var response = await client.GetAsync($"/api/Anuncios/{id}");
-                if (response.IsSuccessStatusCode)
+                var anuncio = await _db.Anuncios
+                    .Include(a => a.Imagens)
+                    .FirstOrDefaultAsync(a => a.Id == id);
+
+                if (anuncio != null)
                 {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var a = JsonSerializer.Deserialize<AnuncioView>(json,
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    var isAdmin = User.IsInRole("Admin");
 
-                    if (a != null)
-                    {
-                        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                        var isAdmin = User.IsInRole("Admin");
+                    if (anuncio.VendedorId != userId && !isAdmin)
+                        return RedirectToPage("/Index");
 
-                        if (a.VendedorId != userId && !isAdmin)
-                            return RedirectToPage("/Index");
-
-                        Titulo = a.Titulo;
-                        Marca = a.Marca;
-                        Modelo = a.Modelo;
-                        Ano = a.Ano;
-                        Preco = a.Preco;
-                        Kilometragem = a.Kilometragem;
-                        Descricao = a.Descricao;
-                        Combustivel = a.Combustivel;
-                        Transmissao = a.Transmissao;
-                        Cor = a.Cor;
-                        Potencia = a.Potencia;
-                        Condicao = a.Condicao;
-                        CategoriaId = a.CategoriaId;
-                        Tipo = a.Tipo ?? "Carro";
-                        ImagensUrls = a.Imagens != null ? string.Join(",", a.Imagens) : "";
-                    }
+                    Titulo = anuncio.Titulo;
+                    Marca = anuncio.Marca;
+                    Modelo = anuncio.Modelo;
+                    Ano = anuncio.Ano;
+                    Preco = anuncio.Preco;
+                    Kilometragem = anuncio.Kilometragem;
+                    Descricao = anuncio.Descricao;
+                    Combustivel = anuncio.Combustivel;
+                    Transmissao = anuncio.Transmissao;
+                    Cor = anuncio.Cor;
+                    Potencia = anuncio.Potencia;
+                    Condicao = anuncio.Condicao;
+                    CategoriaId = anuncio.CategoriaId;
+                    Tipo = anuncio.Tipo;
+                    ImagensUrls = string.Join(",", anuncio.Imagens.Select(i => i.Url));
                 }
             }
             else
@@ -101,119 +105,110 @@ namespace AutoPrice.Pages
                     Titulo = $"{marca} {modelo} {ano}";
             }
 
-            await CarregarCategorias(Tipo);
+            await CarregarCategorias();
             return Page();
-        }
-
-        public async Task<IActionResult> OnPostUploadAsync(IFormFile ficheiro)
-        {
-            var token = Request.Cookies["token"];
-            if (string.IsNullOrEmpty(token))
-                return new JsonResult(new { mensagem = "Não autenticado." }) { StatusCode = 401 };
-
-            if (ficheiro == null || ficheiro.Length == 0)
-                return new JsonResult(new { mensagem = "Nenhum ficheiro enviado." }) { StatusCode = 400 };
-
-            var client = _clientFactory.CreateClient("AutoMarketAPI");
-            client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-
-            using var formData = new MultipartFormDataContent();
-            using var streamContent = new StreamContent(ficheiro.OpenReadStream());
-            streamContent.Headers.ContentType =
-                new System.Net.Http.Headers.MediaTypeHeaderValue(ficheiro.ContentType);
-            formData.Add(streamContent, "ficheiro", ficheiro.FileName);
-
-            var response = await client.PostAsync("/api/Upload/foto", formData);
-            var json = await response.Content.ReadAsStringAsync();
-
-            return new ContentResult
-            {
-                Content = json,
-                ContentType = "application/json",
-                StatusCode = (int)response.StatusCode
-            };
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var token = Request.Cookies["token"];
-            if (string.IsNullOrEmpty(token))
+            if (User.Identity?.IsAuthenticated != true)
                 return RedirectToPage("/Auth/Login");
 
-            await CarregarCategorias(Tipo);
+            await CarregarCategorias();
 
-            var client = _clientFactory.CreateClient("AutoMarketAPI");
-            client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-
+            // Fotos que já estavam publicadas (mantidas pelo utilizador no formulário).
             var listaImagens = string.IsNullOrEmpty(ImagensUrls)
                 ? new List<string>()
                 : ImagensUrls.Split(',').Where(u => !string.IsNullOrWhiteSpace(u)).ToList();
 
-            var body = new
+            // Só agora, ao submeter o formulário, é que as fotos novas vão para o
+            // Storage — antes disso ficaram só como pré-visualização local no browser.
+            if (NovosFicheiros != null)
             {
-                titulo = Titulo,
-                marca = Marca,
-                modelo = Modelo,
-                tipo = Tipo,
-                ano = Ano,
-                preco = Preco,
-                kilometragem = Kilometragem,
-                descricao = Descricao,
-                combustivel = Combustivel,
-                condicao = Condicao,
-                cor = Cor,
-                transmissao = Transmissao,
-                potencia = Potencia,
-                categoriaId = CategoriaId,
-                imagensUrls = listaImagens
-            };
-
-            var content = new StringContent(
-                JsonSerializer.Serialize(body),
-                Encoding.UTF8,
-                "application/json");
-
-            HttpResponseMessage response;
-            if (AnuncioId.HasValue)
-                response = await client.PutAsync($"/api/Anuncios/{AnuncioId}", content);
-            else
-                response = await client.PostAsync("/api/Anuncios", content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                Sucesso = AnuncioId.HasValue ? "Anúncio atualizado com sucesso!" : "Anúncio publicado com sucesso!";
-                return Page();
-            }
-            else
-            {
-                Erro = "Erro ao guardar o anúncio. Tente novamente.";
-                return Page();
-            }
-        }
-
-        private async Task CarregarCategorias(string tipo)
-        {
-            try
-            {
-                var client = _clientFactory.CreateClient("AutoMarketAPI");
-
-                // Carregar todas as categorias de uma vez para filtragem no cliente
-                var response = await client.GetAsync("/api/Categorias");
-                if (response.IsSuccessStatusCode)
+                foreach (var ficheiro in NovosFicheiros)
                 {
-                    var json = await response.Content.ReadAsStringAsync();
-                    TodasCategorias = JsonSerializer.Deserialize<List<CategoriaItem>>(json,
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
-                    // Categorias visíveis no load = filtradas pelo tipo atual
-                    Categorias = TodasCategorias.Where(c => c.Tipo == tipo).ToList();
+                    var (sucesso, url, erro) = await _fotoUpload.UploadAsync(ficheiro);
+                    if (!sucesso)
+                    {
+                        Erro = $"Erro ao publicar fotos: {erro}";
+                        return Page();
+                    }
+                    listaImagens.Add(url!);
                 }
             }
-            catch (Exception ex)
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+            if (AnuncioId.HasValue)
             {
-                Console.WriteLine("Erro ao carregar categorias: " + ex.Message);
+                var anuncio = await _db.Anuncios
+                    .Include(a => a.Imagens)
+                    .FirstOrDefaultAsync(a => a.Id == AnuncioId);
+
+                if (anuncio == null) return NotFound();
+                if (anuncio.VendedorId != userId && !User.IsInRole("Admin"))
+                    return Forbid();
+
+                anuncio.Titulo = Titulo;
+                anuncio.Marca = Marca;
+                anuncio.Modelo = Modelo;
+                anuncio.Tipo = Tipo;
+                anuncio.Ano = Ano;
+                anuncio.Preco = Preco;
+                anuncio.Kilometragem = Kilometragem;
+                anuncio.Descricao = Descricao;
+                anuncio.Combustivel = Combustivel;
+                anuncio.Condicao = Condicao;
+                anuncio.Cor = Cor;
+                anuncio.Transmissao = Transmissao;
+                anuncio.Potencia = Potencia;
+                anuncio.CategoriaId = CategoriaId;
+
+                _db.AnuncioImagens.RemoveRange(anuncio.Imagens);
+                anuncio.Imagens = listaImagens.Select(u => new AnuncioImg { Url = u }).ToList();
+
+                Sucesso = "Anúncio atualizado com sucesso!";
             }
+            else
+            {
+                var anuncio = new Anuncio
+                {
+                    Titulo = Titulo,
+                    Marca = Marca,
+                    Modelo = Modelo,
+                    Tipo = Tipo,
+                    Ano = Ano,
+                    Preco = Preco,
+                    Kilometragem = Kilometragem,
+                    Descricao = Descricao,
+                    Combustivel = Combustivel,
+                    Condicao = Condicao,
+                    Cor = Cor,
+                    Transmissao = Transmissao,
+                    Potencia = Potencia,
+                    CategoriaId = CategoriaId,
+                    VendedorId = userId,
+                    Imagens = listaImagens.Select(u => new AnuncioImg { Url = u }).ToList()
+                };
+
+                _db.Anuncios.Add(anuncio);
+                Sucesso = "Anúncio publicado com sucesso!";
+            }
+
+            await _db.SaveChangesAsync();
+
+            // Devolve a lista atualizada de imagens à vista, para o formulário não
+            // "esquecer" as fotos que acabaram de ser enviadas.
+            ImagensUrls = string.Join(",", listaImagens);
+            return Page();
+        }
+
+        private async Task CarregarCategorias()
+        {
+            TodasCategorias = await _db.Categorias
+                .Select(c => new CategoriaItem { Id = c.Id, Nome = c.Nome, Tipo = c.Tipo })
+                .ToListAsync();
+            Categorias = TodasCategorias.Where(c => c.Tipo == Tipo).ToList();
         }
     }
 

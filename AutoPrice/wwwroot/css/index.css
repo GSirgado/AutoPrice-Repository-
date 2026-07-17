@@ -291,6 +291,23 @@
 }
 
 /* ── RESPONSIVE ──────────────────────────────────── */
+
+/* Tablet: a hero ainda tem as duas colunas, mas mais apertadas,
+   e os cartões de veículo passam a 3 por linha em vez de 4. */
+@media (max-width: 1024px) {
+    .hero-content {
+        max-width: 360px;
+    }
+
+    .vehicle-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .section {
+        padding: 44px 28px;
+    }
+}
+
 @media (max-width: 900px) {
     .vehicle-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -328,5 +345,23 @@
 
     .section {
         padding: 36px 20px;
+    }
+
+    .promo-strip {
+        flex-direction: column;
+    }
+
+    .promo-badge {
+        min-width: 0;
+        width: 100%;
+        padding: 16px 24px;
+    }
+
+    .hero-content h1 {
+        font-size: clamp(1.9rem, 8vw, 2.6rem);
+    }
+
+    .hero-content p {
+        max-width: none;
     }
 }

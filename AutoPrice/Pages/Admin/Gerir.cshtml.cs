@@ -1,86 +1,112 @@
+using AutoMarket.Data;
+using AutoMarket.Models;
+using AutoPrice.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Text;
-using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace AutoPrice.Pages.Admin
 {
     public class GerirModel : PageModel
     {
-        private readonly IHttpClientFactory _clientFactory;
+        private readonly AppDbContext _db;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly FotoUploadService _fotoUpload;
 
         public List<UtilizadorAdminDto> Utilizadores { get; set; } = new();
         public List<AnuncioAdminDto> Veiculos { get; set; } = new();
         public List<CategoriaDto> Categorias { get; set; } = new();
         public string AdminId { get; set; } = "";
 
-        public GerirModel(IHttpClientFactory clientFactory)
+        public GerirModel(AppDbContext db, UserManager<ApplicationUser> userManager, FotoUploadService fotoUpload)
         {
-            _clientFactory = clientFactory;
-        }
-
-        private HttpClient CriarClienteAutenticado()
-        {
-            var token = Request.Cookies["token"];
-            var client = _clientFactory.CreateClient("AutoMarketAPI");
-            if (!string.IsNullOrEmpty(token))
-                client.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            return client;
+            _db = db;
+            _userManager = userManager;
+            _fotoUpload = fotoUpload;
         }
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var token = Request.Cookies["token"];
-            if (string.IsNullOrEmpty(token))
+            if (User.Identity?.IsAuthenticated != true)
                 return RedirectToPage("/Auth/Login");
 
             if (!User.IsInRole("Admin"))
                 return RedirectToPage("/Index");
 
-            var client = CriarClienteAutenticado();
+            AdminId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
 
-            AdminId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+            // As três consultas que antes viviam em GET /api/admin/utilizadores,
+            // GET /api/admin/anuncios e GET /api/categorias, feitas diretamente aqui.
+            Utilizadores = await _db.Users
+                .Select(u => new UtilizadorAdminDto
+                {
+                    Id = u.Id,
+                    NomeCompleto = u.NomeCompleto,
+                    Email = u.Email,
+                    FotoUrl = u.FotoUrl,
+                    Localizacao = u.Localizacao,
+                    DataRegisto = u.DataRegisto,
+                    TotalAnuncios = _db.Anuncios.Count(a => a.VendedorId == u.Id)
+                })
+                .ToListAsync();
 
-            var resUsers = await client.GetAsync("/api/admin/utilizadores");
-            if (resUsers.IsSuccessStatusCode)
+            var anuncios = await _db.Anuncios
+                .Include(a => a.Categoria)
+                .Include(a => a.Imagens)
+                .ToListAsync();
+
+            var users = await _db.Users.ToDictionaryAsync(u => u.Id, u => u);
+
+            Veiculos = anuncios.Select(a => new AnuncioAdminDto
             {
-                var json = await resUsers.Content.ReadAsStringAsync();
-                Utilizadores = JsonSerializer.Deserialize<List<UtilizadorAdminDto>>(json,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
-            }
+                Id = a.Id,
+                Titulo = a.Titulo,
+                Marca = a.Marca,
+                Modelo = a.Modelo,
+                Ano = a.Ano,
+                Preco = a.Preco,
+                CategoriaId = a.CategoriaId,
+                Categoria = a.Categoria?.Nome,
+                Kilometragem = a.Kilometragem,
+                Descricao = a.Descricao,
+                Combustivel = a.Combustivel,
+                Condicao = a.Condicao,
+                Imagens = a.Imagens.Select(i => i.Url).ToList(),
+                VendedorNome = a.VendedorId != null && users.ContainsKey(a.VendedorId) ? users[a.VendedorId].NomeCompleto : null,
+                VendedorEmail = a.VendedorId != null && users.ContainsKey(a.VendedorId) ? users[a.VendedorId].Email : null
+            }).ToList();
 
-            var resAnuncios = await client.GetAsync("/api/admin/anuncios");
-            if (resAnuncios.IsSuccessStatusCode)
-            {
-                var json = await resAnuncios.Content.ReadAsStringAsync();
-                Veiculos = JsonSerializer.Deserialize<List<AnuncioAdminDto>>(json,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
-            }
-
-            var resCategorias = await client.GetAsync("/api/categorias");
-            if (resCategorias.IsSuccessStatusCode)
-            {
-                var json = await resCategorias.Content.ReadAsStringAsync();
-                Categorias = JsonSerializer.Deserialize<List<CategoriaDto>>(json,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
-            }
+            Categorias = await _db.Categorias
+                .Select(c => new CategoriaDto { Id = c.Id, Nome = c.Nome })
+                .ToListAsync();
 
             return Page();
         }
 
         public async Task<IActionResult> OnPostEliminarUtilizadorAsync(string id)
         {
-            var client = CriarClienteAutenticado();
-            await client.DeleteAsync($"/api/admin/utilizadores/{id}");
+            var utilizador = await _db.Users.FindAsync(id);
+            if (utilizador != null)
+            {
+                _db.Users.Remove(utilizador);
+                await _db.SaveChangesAsync();
+            }
+
             TempData["Sucesso"] = "Utilizador eliminado com sucesso.";
             return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostEliminarAnuncioAsync(int id)
         {
-            var client = CriarClienteAutenticado();
-            await client.DeleteAsync($"/api/admin/anuncios/{id}");
+            var anuncio = await _db.Anuncios.FindAsync(id);
+            if (anuncio != null)
+            {
+                _db.Anuncios.Remove(anuncio);
+                await _db.SaveChangesAsync();
+            }
+
             TempData["Sucesso"] = "Anúncio eliminado com sucesso.";
             return RedirectToPage();
         }
@@ -88,20 +114,37 @@ namespace AutoPrice.Pages.Admin
         public async Task<IActionResult> OnPostEditarUtilizadorAsync(
             string id, string nomeCompleto, string email, string? localizacao, string? novaPassword)
         {
-            var client = CriarClienteAutenticado();
-            var body = new { nomeCompleto, email, localizacao, novaPassword };
-            var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
-
-            var resposta = await client.PutAsync($"/api/admin/utilizadores/{id}", content);
-
-            if (resposta.IsSuccessStatusCode)
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
             {
-                TempData["Sucesso"] = "Utilizador atualizado com sucesso.";
+                TempData["Erro"] = "Utilizador não encontrado.";
+                return RedirectToPage();
             }
-            else
+
+            user.NomeCompleto = nomeCompleto;
+            user.Localizacao = localizacao;
+
+            if (!string.IsNullOrEmpty(email) && !string.Equals(email, user.Email, StringComparison.OrdinalIgnoreCase))
             {
-                TempData["Erro"] = "Não foi possível atualizar o utilizador. Verifica a password (mín. 6 caracteres, com pelo menos um número).";
+                await _userManager.SetEmailAsync(user, email);
+                await _userManager.SetUserNameAsync(user, email);
             }
+
+            if (!string.IsNullOrWhiteSpace(novaPassword))
+            {
+                await _userManager.RemovePasswordAsync(user);
+                var addResult = await _userManager.AddPasswordAsync(user, novaPassword);
+                if (!addResult.Succeeded)
+                {
+                    TempData["Erro"] = "Não foi possível atualizar o utilizador. Verifica a password (mín. 6 caracteres, com pelo menos um número).";
+                    return RedirectToPage();
+                }
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+            TempData[result.Succeeded ? "Sucesso" : "Erro"] = result.Succeeded
+                ? "Utilizador atualizado com sucesso."
+                : "Não foi possível atualizar o utilizador. Verifica a password (mín. 6 caracteres, com pelo menos um número).";
 
             return RedirectToPage();
         }
@@ -111,7 +154,15 @@ namespace AutoPrice.Pages.Admin
             int categoriaId, int? kilometragem, string? descricao, string? combustivel, string? condicao,
             string? imagensAtuais, IFormFile? novaImagem)
         {
-            var client = CriarClienteAutenticado();
+            var anuncio = await _db.Anuncios
+                .Include(a => a.Imagens)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (anuncio == null)
+            {
+                TempData["Erro"] = "Anúncio não encontrado.";
+                return RedirectToPage();
+            }
 
             // imagensAtuais chega como URLs separados por vírgula (campo hidden no formulário)
             var imagensUrls = string.IsNullOrWhiteSpace(imagensAtuais)
@@ -120,51 +171,31 @@ namespace AutoPrice.Pages.Admin
 
             if (novaImagem != null && novaImagem.Length > 0)
             {
-                using var multipart = new MultipartFormDataContent();
-                using var streamContent = new StreamContent(novaImagem.OpenReadStream());
-                streamContent.Headers.ContentType =
-                    new System.Net.Http.Headers.MediaTypeHeaderValue(novaImagem.ContentType);
-                multipart.Add(streamContent, "ficheiro", novaImagem.FileName);
-
-                var uploadResponse = await client.PostAsync("/api/Upload/foto", multipart);
-                if (uploadResponse.IsSuccessStatusCode)
-                {
-                    var uploadJson = await uploadResponse.Content.ReadAsStringAsync();
-                    var uploadResultado = JsonSerializer.Deserialize<JsonElement>(uploadJson);
-                    var novaUrl = uploadResultado.GetProperty("url").GetString();
-                    if (!string.IsNullOrEmpty(novaUrl))
-                        imagensUrls.Add(novaUrl);
-                }
-                else
+                var (sucesso, url, erro) = await _fotoUpload.UploadAsync(novaImagem);
+                if (!sucesso)
                 {
                     TempData["Erro"] = "Não foi possível enviar a nova imagem.";
                     return RedirectToPage();
                 }
+                imagensUrls.Add(url!);
             }
 
-            var body = new
-            {
-                titulo,
-                marca,
-                modelo,
-                ano,
-                preco,
-                categoriaId,
-                kilometragem,
-                descricao,
-                combustivel,
-                condicao,
-                imagensUrls
-            };
-            var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+            anuncio.Titulo = titulo;
+            anuncio.Marca = marca;
+            anuncio.Modelo = modelo;
+            anuncio.Ano = ano;
+            anuncio.Preco = preco;
+            anuncio.CategoriaId = categoriaId;
+            anuncio.Kilometragem = kilometragem;
+            anuncio.Descricao = descricao;
+            anuncio.Combustivel = combustivel;
+            anuncio.Condicao = condicao;
 
-            var resposta = await client.PutAsync($"/api/admin/anuncios/{id}", content);
+            _db.AnuncioImagens.RemoveRange(anuncio.Imagens);
+            anuncio.Imagens = imagensUrls.Select(u => new AnuncioImg { Url = u }).ToList();
 
-            if (resposta.IsSuccessStatusCode)
-                TempData["Sucesso"] = "Anúncio atualizado com sucesso.";
-            else
-                TempData["Erro"] = "Não foi possível atualizar o anúncio.";
-
+            await _db.SaveChangesAsync();
+            TempData["Sucesso"] = "Anúncio atualizado com sucesso.";
             return RedirectToPage();
         }
     }

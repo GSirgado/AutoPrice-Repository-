@@ -237,3 +237,73 @@ footer {
     .nav-msg-badge.visivel {
         display: block;
     }
+
+/* ── RESPONSIVIDADE: navegação e rodapé ─────────────────────────
+   A nav usa flexbox numa única linha no desktop. Em ecrãs mais
+   estreitos deixamos os links quebrar para uma segunda linha em
+   vez de os espremer ou cortar — assim não é preciso nenhum menu
+   "hambúrguer" novo em HTML/JS, só reorganizar o que já existe. */
+@media (max-width: 1024px) {
+    nav {
+        padding: 0 20px;
+    }
+
+    .nav-links {
+        gap: 18px;
+    }
+}
+
+@media (max-width: 768px) {
+    nav {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 14px 16px;
+        row-gap: 10px;
+    }
+
+    .logo {
+        height: 64px;
+    }
+
+    .nav-links {
+        width: 100%;
+        justify-content: center;
+        gap: 10px 20px;
+    }
+
+        .nav-links a {
+            font-size: 0.85rem;
+        }
+
+    footer {
+        padding: 24px 20px 16px;
+    }
+
+    .footer-nav {
+        flex-wrap: wrap;
+        gap: 14px 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        height: 50px;
+    }
+
+    .nav-links {
+        gap: 8px 14px;
+    }
+
+        .nav-links a {
+            font-size: 0.8rem;
+        }
+
+    .social-row {
+        gap: 12px;
+    }
+
+    .social-icon {
+        width: 34px;
+        height: 34px;
+    }
+}

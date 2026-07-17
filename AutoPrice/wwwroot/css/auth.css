@@ -99,3 +99,14 @@
         .auth-link a:hover {
             text-decoration: underline;
         }
+
+/* ── RESPONSIVIDADE: páginas de login/registo ────────────────── */
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 32px 24px;
+    }
+
+    .auth-title {
+        font-size: 24px;
+    }
+}

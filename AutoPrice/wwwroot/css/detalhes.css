@@ -410,3 +410,50 @@
         grid-template-columns: 1fr 1fr;
     }
 }
+
+/* ── RESPONSIVIDADE: página de detalhes ──────────────────────────
+   A grelha principal (imagens + painel de compra) é uma grid de
+   2 colunas fixa em desktop; abaixo de tablet passa a empilhar,
+   com o painel de preço/contacto a vir depois das fotos. */
+@media (max-width: 1024px) {
+    .detail-layout {
+        grid-template-columns: 1fr 360px;
+        gap: 24px;
+    }
+}
+
+@media (max-width: 860px) {
+    .detail-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .breadcrumb {
+        padding: 16px 20px 0;
+    }
+
+    .equip-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 560px) {
+    .breadcrumb {
+        padding: 14px 16px 0;
+    }
+
+    .specs-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .equip-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .car-title {
+        font-size: 1.4rem;
+    }
+
+    .price-main {
+        font-size: 1.6rem;
+    }
+}

@@ -295,6 +295,16 @@
         background: #e0bc5a;
     }
 
+@media (max-width: 768px) {
+    .vender-wrapper {
+        padding: 24px 20px;
+    }
+
+    .vender-card {
+        padding: 20px;
+    }
+}
+
 @media (max-width: 600px) {
     .vender-grid {
         grid-template-columns: 1fr;

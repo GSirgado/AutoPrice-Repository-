@@ -1,13 +1,16 @@
+using AutoMarket.Models;
+using AutoPrice.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text.Json;
 
 namespace AutoPrice.Pages.Auth
 {
     public class LoginModel : PageModel
     {
-        private readonly IHttpClientFactory _clientFactory;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ITokenService _tokenService;
 
         [BindProperty]
         public string Email { get; set; } = string.Empty;
@@ -15,65 +18,45 @@ namespace AutoPrice.Pages.Auth
         public string Password { get; set; } = string.Empty;
         public string? Erro { get; set; }
 
-        public LoginModel(IHttpClientFactory clientFactory)
+        public LoginModel(
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            ITokenService tokenService)
         {
-            _clientFactory = clientFactory;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _tokenService = tokenService;
         }
 
         public void OnGet() { }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var client = _clientFactory.CreateClient("AutoMarketAPI");
-            var body = new { email = Email, password = Password };
-            var content = new StringContent(
-                JsonSerializer.Serialize(body),
-                System.Text.Encoding.UTF8,
-                "application/json");
+            // A validação da password passa a ser feita aqui, com o Identity a
+            // consultar a base de dados diretamente — deixou de haver um pedido
+            // POST /api/auth/login ao AutoMarket a fazer isto por nós.
+            var user = await _userManager.FindByEmailAsync(Email);
+            var loginValido = user != null &&
+                (await _signInManager.CheckPasswordSignInAsync(user, Password, false)).Succeeded;
 
-            var response = await client.PostAsync("/api/auth/login", content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                var resultado = JsonSerializer.Deserialize<JsonElement>(json);
-                var token = resultado.GetProperty("token").GetString();
-                var nome = resultado.GetProperty("nomeCompleto").GetString();
-
-                Response.Cookies.Append("token", token!,
-                    new CookieOptions { HttpOnly = false, SameSite = SameSiteMode.Strict });
-                Response.Cookies.Append("nomeCompleto", nome!);
-
-                // Extrair o Id do utilizador a partir do JWT (só para uso do JS no chat/Mensagens,
-                // não para autenticação/autorização — isso já é feito pelo JwtBearer no Program.cs)
-                var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadJwtToken(token);
-                var userId = jwtToken.Claims.FirstOrDefault(c =>
-                    c.Type == "sub" || c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                if (!string.IsNullOrEmpty(userId))
-                    Response.Cookies.Append("userId", userId);
-
-                // Ir buscar a foto do perfil
-                var clientPerfil = _clientFactory.CreateClient("AutoMarketAPI");
-                clientPerfil.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-                var responsePerfil = await clientPerfil.GetAsync("/api/perfil");
-                if (responsePerfil.IsSuccessStatusCode)
-                {
-                    var jsonPerfil = await responsePerfil.Content.ReadAsStringAsync();
-                    var perfil = JsonSerializer.Deserialize<JsonElement>(jsonPerfil);
-                    var fotoUrl = perfil.TryGetProperty("fotoUrl", out var foto) ? foto.GetString() : null;
-                    if (!string.IsNullOrEmpty(fotoUrl))
-                        Response.Cookies.Append("fotoUrl", fotoUrl);
-                }
-
-                return RedirectToPage("/Index");
-            }
-            else
+            if (!loginValido || user == null)
             {
                 Erro = "Email ou password incorretos.";
                 return Page();
             }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var token = _tokenService.GerarToken(user, roles);
+
+            Response.Cookies.Append("token", token,
+                new CookieOptions { HttpOnly = false, SameSite = SameSiteMode.Strict });
+            Response.Cookies.Append("nomeCompleto", user.NomeCompleto);
+            Response.Cookies.Append("userId", user.Id);
+
+            if (!string.IsNullOrEmpty(user.FotoUrl))
+                Response.Cookies.Append("fotoUrl", user.FotoUrl);
+
+            return RedirectToPage("/Index");
         }
     }
 }

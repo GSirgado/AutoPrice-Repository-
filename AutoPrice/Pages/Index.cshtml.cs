@@ -1,79 +1,43 @@
-﻿using AutoPrice.Models;
+﻿using AutoMarket.Data;
+using AutoPrice.Models;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace AutoPrice.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly IHttpClientFactory _clientFactory;
+        private readonly AppDbContext _db;
 
         public List<AnuncioView> Destaques { get; set; } = new();
 
-        public IndexModel(IHttpClientFactory clientFactory)
+        public IndexModel(AppDbContext db)
         {
-            _clientFactory = clientFactory;
+            _db = db;
         }
 
         public async Task OnGetAsync()
         {
-            try
-            {
-                var client = _clientFactory.CreateClient("AutoMarketAPI");
-                var response = await client.GetAsync("/api/Anuncios");
-
-                if (response.IsSuccessStatusCode)
+            // Antes: GET /api/Anuncios ao AutoMarket + TakeLast(4) em memória.
+            // Agora vai direto à BD e já traz só os últimos 4 anúncios.
+            Destaques = await _db.Anuncios
+                .Include(a => a.Imagens)
+                .OrderByDescending(a => a.Id)
+                .Take(4)
+                .Select(a => new AnuncioView
                 {
-                    var json = await response.Content.ReadAsStringAsync();
-
-                   
-                    var anuncios = JsonSerializer.Deserialize<List<AnuncioIndexDto>>(json,
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                    Destaques = anuncios?
-                        .TakeLast(4)
-                        .Select(a => new AnuncioView
-                        {
-                            Id = a.Id,
-                            Titulo = a.Titulo,
-                            Marca = a.Marca,
-                            Modelo = a.Modelo,
-                            Ano = a.Ano,
-                            Preco = a.Preco,
-                            Combustivel = a.Combustivel,
-                            Condicao = a.Condicao,
-                            Kilometragem = a.Kilometragem,
-                           
-                            Imagens = a.Imagens?.Select(i => i.Url).ToList() ?? new()
-                        })
-                        .ToList() ?? new();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Erro ao chamar API: " + ex.Message);
-            }
+                    Id = a.Id,
+                    Titulo = a.Titulo,
+                    Marca = a.Marca,
+                    Modelo = a.Modelo,
+                    Ano = a.Ano,
+                    Preco = a.Preco,
+                    Combustivel = a.Combustivel,
+                    Condicao = a.Condicao,
+                    Kilometragem = a.Kilometragem,
+                    Imagens = a.Imagens.Select(i => i.Url).ToList()
+                })
+                .ToListAsync();
         }
-    }
-
-    // DTO intermédio para deserializar a resposta da API
-    public class AnuncioIndexDto
-    {
-        public int Id { get; set; }
-        public string Titulo { get; set; } = string.Empty;
-        public string Marca { get; set; } = string.Empty;
-        public string Modelo { get; set; } = string.Empty;
-        public int Ano { get; set; }
-        public decimal Preco { get; set; }
-        public int? Kilometragem { get; set; }
-        public string? Combustivel { get; set; }
-        public string? Condicao { get; set; }
-        public List<AnuncioImgIndexDto>? Imagens { get; set; }
-    }
-
-    public class AnuncioImgIndexDto
-    {
-        public int Id { get; set; }
-        public string Url { get; set; } = string.Empty;
     }
 }

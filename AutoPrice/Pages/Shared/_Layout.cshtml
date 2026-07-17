@@ -40,14 +40,14 @@
                 ? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(nomeUser) + "&background=c9a84c&color=000&size=200"
                 : fotoUser;
 
-                <a asp-page="/Mensagens/Index" class="nav-msg-link" title="Mensagens">
+                <a asp-page="/Mensagens/sms" class="nav-msg-link" title="Mensagens">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                     </svg>
                     <span class="nav-msg-badge" id="msg-badge"></span>
                 </a>
 
-                <a asp-page="/Favoritos/Index" title="Favoritos" style="font-size:1.3rem;line-height:1;color:#e63946">
+                <a asp-page="/Favoritos/fav" title="Favoritos" style="font-size:1.3rem;line-height:1;color:#e63946">
                     ♥
                 </a>
 

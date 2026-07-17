@@ -345,7 +345,30 @@
     display: none;
 }
 
+@media (max-width: 900px) {
+    .admin-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 700px) {
+    .admin-wrap {
+        padding: 24px 16px;
+    }
+
+    .admin-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .admin-table {
+        min-width: 640px;
+    }
+
+    .admin-tabs {
+        flex-wrap: wrap;
+    }
+
     .admin-stats {
         grid-template-columns: 1fr;
     }

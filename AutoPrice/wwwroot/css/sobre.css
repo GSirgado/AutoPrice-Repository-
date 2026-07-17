@@ -149,3 +149,43 @@
 }
 
 </style >
+
+/* ── RESPONSIVIDADE: página Sobre ────────────────────────────────
+   As linhas "label: valor" usam uma largura mínima fixa para o
+   rótulo; em ecrãs estreitos isso empurra o valor para fora, por
+   isso passam a empilhar verticalmente. */
+@media (max-width: 700px) {
+    .sobre-wrapper {
+        margin: 32px auto;
+        padding: 0 16px 60px;
+    }
+
+    .sobre-card {
+        padding: 24px 20px;
+    }
+
+    .sobre-title {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .sobre-row {
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .sobre-label {
+        min-width: 0;
+    }
+
+    .sobre-cred-row {
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .autor-badge {
+        width: 100%;
+        justify-content: center;
+    }
+}

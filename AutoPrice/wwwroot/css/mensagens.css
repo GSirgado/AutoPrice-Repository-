@@ -246,3 +246,37 @@
         opacity: .45;
         cursor: not-allowed;
     }
+
+/* ── RESPONSIVIDADE: mensagens ────────────────────────────────────
+   Em desktop a lista de conversas e o painel de chat ficam lado a
+   lado. Não há espaço para as duas colunas num telemóvel, por isso
+   passam a empilhar: primeiro a lista, depois o painel da conversa
+   ativa (o utilizador desliza a página para ver a conversa aberta). */
+@media (max-width: 900px) {
+    .msgs-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .conversas-lista {
+        border-radius: 12px;
+        max-height: 40vh;
+    }
+
+    .chat-painel {
+        border-radius: 12px;
+        min-height: 55vh;
+    }
+}
+
+@media (max-width: 480px) {
+    .msgs-layout {
+        padding: 8px;
+    }
+
+    .chat-input-area {
+        flex-wrap: wrap;
+    }
+}

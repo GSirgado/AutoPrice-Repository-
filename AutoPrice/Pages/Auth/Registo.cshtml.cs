@@ -1,13 +1,15 @@
+using AutoMarket.Models;
+using AutoPrice.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Text;
-using System.Text.Json;
 
 namespace AutoPrice.Pages.Auth
 {
     public class RegistoModel : PageModel
     {
-        private readonly IHttpClientFactory _clientFactory;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ITokenService _tokenService;
 
         [BindProperty]
         public string NomeCompleto { get; set; } = string.Empty;
@@ -23,9 +25,10 @@ namespace AutoPrice.Pages.Auth
 
         public string? Erro { get; set; }
 
-        public RegistoModel(IHttpClientFactory clientFactory)
+        public RegistoModel(UserManager<ApplicationUser> userManager, ITokenService tokenService)
         {
-            _clientFactory = clientFactory;
+            _userManager = userManager;
+            _tokenService = tokenService;
         }
 
         public void OnGet() { }
@@ -38,58 +41,37 @@ namespace AutoPrice.Pages.Auth
                 return Page();
             }
 
-            var client = _clientFactory.CreateClient("AutoMarketAPI");
-
-            var body = new { nomeCompleto = NomeCompleto, email = Email, password = Password };
-            var content = new StringContent(
-                JsonSerializer.Serialize(body),
-                Encoding.UTF8,
-                "application/json");
-
-            var response = await client.PostAsync("/api/auth/register", content);
-
-            if (response.IsSuccessStatusCode)
+            if (await _userManager.FindByEmailAsync(Email) != null)
             {
-                var json = await response.Content.ReadAsStringAsync();
-                var resultado = JsonSerializer.Deserialize<JsonElement>(json);
-                var token = resultado.GetProperty("token").GetString();
-                var nome = resultado.GetProperty("nomeCompleto").GetString();
-
-                Response.Cookies.Append("token", token!,
-                    new CookieOptions { HttpOnly = true, SameSite = SameSiteMode.Strict });
-                Response.Cookies.Append("nomeCompleto", nome!);
-
-                return RedirectToPage("/Index");
-            }
-            else
-            {
-                var jsonErro = await response.Content.ReadAsStringAsync();
-
-                try
-                {
-                    var erroObj = JsonSerializer.Deserialize<JsonElement>(jsonErro);
-
-                    if (erroObj.TryGetProperty("erros", out var erros))
-                    {
-                        var listaErros = erros.EnumerateArray().Select(e => e.GetString()).ToList();
-                        Erro = string.Join(" ", listaErros);
-                    }
-                    else if (erroObj.TryGetProperty("mensagem", out var mensagem))
-                    {
-                        Erro = mensagem.GetString();
-                    }
-                    else
-                    {
-                        Erro = "Erro ao criar conta.";
-                    }
-                }
-                catch
-                {
-                    Erro = "Erro ao criar conta. O email pode já estar registado.";
-                }
-
+                Erro = "Este email já está registado.";
                 return Page();
             }
+
+            var user = new ApplicationUser
+            {
+                UserName = Email,
+                Email = Email,
+                NomeCompleto = NomeCompleto
+            };
+
+            // Criação do utilizador direto pelo Identity — a mesma classe que o
+            // AutoMarket usa para gerir as contas, agora chamada aqui também.
+            var resultado = await _userManager.CreateAsync(user, Password);
+            if (!resultado.Succeeded)
+            {
+                Erro = string.Join(" ", resultado.Errors.Select(e => e.Description));
+                return Page();
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var token = _tokenService.GerarToken(user, roles);
+
+            Response.Cookies.Append("token", token,
+                new CookieOptions { HttpOnly = false, SameSite = SameSiteMode.Strict });
+            Response.Cookies.Append("nomeCompleto", user.NomeCompleto);
+            Response.Cookies.Append("userId", user.Id);
+
+            return RedirectToPage("/Index");
         }
     }
 }

@@ -391,10 +391,27 @@
     .vl-header {
         padding: 24px 20px 0;
     }
+
+    .vl-filters {
+        position: static;
+    }
 }
 
 @media (max-width:500px) {
     .vl-grid {
         grid-template-columns: 1fr;
+    }
+
+    .vl-title {
+        font-size: 1.7rem;
+    }
+
+    .vl-two-col {
+        grid-template-columns: 1fr;
+    }
+
+    .vl-results-header {
+        flex-wrap: wrap;
+        gap: 10px;
     }
 }

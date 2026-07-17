@@ -1,12 +1,17 @@
+using AutoMarket.Data;
+using AutoMarket.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace AutoPrice.Pages
 {
     public class PerfilModel : PageModel
     {
-        private readonly IHttpClientFactory _clientFactory;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly AppDbContext _db;
 
         public string NomeCompleto { get; set; } = string.Empty;
         public string? Email { get; set; }
@@ -15,40 +20,52 @@ namespace AutoPrice.Pages
         public string? FotoUrl { get; set; }
         public List<AnuncioPerfilDto> MeusAnuncios { get; set; } = new();
 
-        public PerfilModel(IHttpClientFactory clientFactory)
+        public PerfilModel(UserManager<ApplicationUser> userManager, AppDbContext db)
         {
-            _clientFactory = clientFactory;
+            _userManager = userManager;
+            _db = db;
         }
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var token = Request.Cookies["token"];
-            if (string.IsNullOrEmpty(token))
+            if (User.Identity?.IsAuthenticated != true)
                 return RedirectToPage("/Auth/Login");
 
-            var client = _clientFactory.CreateClient("AutoMarketAPI");
-            client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(userId!);
+            if (user == null)
+                return RedirectToPage("/Auth/Login");
 
-            var responsePerfil = await client.GetAsync("/api/perfil");
-            if (responsePerfil.IsSuccessStatusCode)
-            {
-                var json = await responsePerfil.Content.ReadAsStringAsync();
-                var perfil = JsonSerializer.Deserialize<JsonElement>(json);
-                NomeCompleto = perfil.GetProperty("nomeCompleto").GetString() ?? "";
-                Email = perfil.GetProperty("email").GetString() ?? "";
-                Telefone = perfil.TryGetProperty("telefone", out var tel) ? tel.GetString() : null;
-                Localizacao = perfil.TryGetProperty("localizacao", out var loc) ? loc.GetString() : null;
-                FotoUrl = perfil.TryGetProperty("fotoUrl", out var foto) ? foto.GetString() : null;
-            }
+            NomeCompleto = user.NomeCompleto;
+            Email = user.Email;
+            Telefone = user.PhoneNumber;
+            Localizacao = user.Localizacao;
+            FotoUrl = user.FotoUrl;
 
-            var responseAnuncios = await client.GetAsync("/api/Anuncios/meus");
-            if (responseAnuncios.IsSuccessStatusCode)
-            {
-                var json = await responseAnuncios.Content.ReadAsStringAsync();
-                MeusAnuncios = JsonSerializer.Deserialize<List<AnuncioPerfilDto>>(json,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
-            }
+            // Mesma consulta que antes estava em GET /api/anuncios/meus.
+            MeusAnuncios = await _db.Anuncios
+                .Include(a => a.Categoria)
+                .Include(a => a.Imagens)
+                .Where(a => a.VendedorId == userId)
+                .OrderByDescending(a => a.Id)
+                .Select(a => new AnuncioPerfilDto
+                {
+                    Id = a.Id,
+                    Titulo = a.Titulo,
+                    Marca = a.Marca,
+                    Modelo = a.Modelo,
+                    VendedorId = a.VendedorId,
+                    Ano = a.Ano,
+                    Preco = a.Preco,
+                    Kilometragem = a.Kilometragem,
+                    Descricao = a.Descricao,
+                    Combustivel = a.Combustivel,
+                    Condicao = a.Condicao,
+                    CategoriaId = a.CategoriaId,
+                    Categoria = a.Categoria != null ? a.Categoria.Nome : null,
+                    Imagens = a.Imagens.Select(i => i.Url).ToList()
+                })
+                .ToListAsync();
 
             return Page();
         }

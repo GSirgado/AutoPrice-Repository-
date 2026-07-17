@@ -218,6 +218,16 @@
         color: #000;
     }
 
+@media (max-width: 768px) {
+    .avaliar-wrapper {
+        padding: 24px 20px;
+    }
+
+    .resultado-detalhes {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 600px) {
     .avaliar-grid {
         grid-template-columns: 1fr;

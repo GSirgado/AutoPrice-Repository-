@@ -1,13 +1,16 @@
+using AutoMarket.Models;
+using AutoPrice.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Text;
-using System.Text.Json;
+using System.Security.Claims;
 
 namespace AutoPrice.Pages
 {
     public class EditarPerfilModel : PageModel
     {
-        private readonly IHttpClientFactory _clientFactory;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly FotoUploadService _fotoUpload;
 
         [BindProperty] public string? NomeCompleto { get; set; }
         [BindProperty] public string? Telefone { get; set; }
@@ -22,25 +25,29 @@ namespace AutoPrice.Pages
         public string? Erro { get; set; }
         public string? Sucesso { get; set; }
 
-        public EditarPerfilModel(IHttpClientFactory clientFactory)
+        public EditarPerfilModel(UserManager<ApplicationUser> userManager, FotoUploadService fotoUpload)
         {
-            _clientFactory = clientFactory;
+            _userManager = userManager;
+            _fotoUpload = fotoUpload;
         }
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var token = Request.Cookies["token"];
-            if (string.IsNullOrEmpty(token))
+            if (User.Identity?.IsAuthenticated != true)
                 return RedirectToPage("/Auth/Login");
 
-            await CarregarEmail(token);
+            await CarregarDadosAtuais();
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var token = Request.Cookies["token"];
-            if (string.IsNullOrEmpty(token))
+            if (User.Identity?.IsAuthenticated != true)
+                return RedirectToPage("/Auth/Login");
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(userId!);
+            if (user == null)
                 return RedirectToPage("/Auth/Login");
 
             if (!string.IsNullOrEmpty(NovaPassword))
@@ -48,107 +55,90 @@ namespace AutoPrice.Pages
                 if (string.IsNullOrEmpty(PasswordAtual))
                 {
                     Erro = "Tens de inserir a password atual para a alterar.";
-                    await CarregarEmail(token);
+                    await CarregarDadosAtuais();
                     return Page();
                 }
                 if (NovaPassword != ConfirmarPassword)
                 {
                     Erro = "As novas passwords não coincidem.";
-                    await CarregarEmail(token);
+                    await CarregarDadosAtuais();
                     return Page();
                 }
             }
-
-            var client = _clientFactory.CreateClient("AutoMarketAPI");
-            client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
             if (FotoFicheiro != null && FotoFicheiro.Length > 0)
             {
-                using var formData = new MultipartFormDataContent();
-                var fileContent = new StreamContent(FotoFicheiro.OpenReadStream());
-                fileContent.Headers.ContentType =
-                    new System.Net.Http.Headers.MediaTypeHeaderValue(FotoFicheiro.ContentType);
-                formData.Add(fileContent, "ficheiro", FotoFicheiro.FileName);
-
-                var responseUpload = await client.PostAsync("/api/upload/foto", formData);
-                if (responseUpload.IsSuccessStatusCode)
+                var (sucesso, url, erro) = await _fotoUpload.UploadAsync(FotoFicheiro);
+                if (!sucesso)
                 {
-                    var jsonUpload = await responseUpload.Content.ReadAsStringAsync();
-                    var resultado = JsonSerializer.Deserialize<JsonElement>(jsonUpload);
-                    FotoUrl = resultado.GetProperty("url").GetString();
+                    Erro = $"Erro upload: {erro}";
+                    await CarregarDadosAtuais();
+                    return Page();
                 }
-                else
+                FotoUrl = url;
+            }
+
+            if (!string.IsNullOrWhiteSpace(NomeCompleto))
+                user.NomeCompleto = NomeCompleto;
+
+            if (!string.IsNullOrWhiteSpace(Email) && Email != user.Email)
+            {
+                var emailExiste = await _userManager.FindByEmailAsync(Email);
+                if (emailExiste != null)
                 {
-                    var erroDetalhe = await responseUpload.Content.ReadAsStringAsync();
-                    Erro = $"Erro upload: {responseUpload.StatusCode} - {erroDetalhe}";
-                    await CarregarEmail(token);
+                    Erro = "Este email já está em uso.";
+                    await CarregarDadosAtuais();
+                    return Page();
+                }
+
+                await _userManager.SetEmailAsync(user, Email);
+                await _userManager.SetUserNameAsync(user, Email);
+            }
+
+            if (Telefone != null) user.PhoneNumber = Telefone;
+            if (Localizacao != null) user.Localizacao = Localizacao;
+            if (!string.IsNullOrWhiteSpace(FotoUrl)) user.FotoUrl = FotoUrl;
+
+            var resultado = await _userManager.UpdateAsync(user);
+            if (!resultado.Succeeded)
+            {
+                Erro = $"Erro ao atualizar: {string.Join(" ", resultado.Errors.Select(e => e.Description))}";
+                await CarregarDadosAtuais();
+                return Page();
+            }
+
+            if (!string.IsNullOrEmpty(NovaPassword) && !string.IsNullOrEmpty(PasswordAtual))
+            {
+                var resultadoPassword = await _userManager.ChangePasswordAsync(user, PasswordAtual, NovaPassword);
+                if (!resultadoPassword.Succeeded)
+                {
+                    Erro = "Password atual incorreta.";
+                    await CarregarDadosAtuais();
                     return Page();
                 }
             }
 
-            var body = new
-            {
-                nomeCompleto = string.IsNullOrWhiteSpace(NomeCompleto) ? null : NomeCompleto,
-                email = string.IsNullOrWhiteSpace(Email) ? null : Email,
-                telefone = string.IsNullOrWhiteSpace(Telefone) ? null : Telefone,
-                localizacao = string.IsNullOrWhiteSpace(Localizacao) ? null : Localizacao,
-                fotoUrl = string.IsNullOrWhiteSpace(FotoUrl) ? null : FotoUrl,
-                passwordAtual = string.IsNullOrWhiteSpace(PasswordAtual) ? null : PasswordAtual,
-                novaPassword = string.IsNullOrWhiteSpace(NovaPassword) ? null : NovaPassword
-            };
+            if (!string.IsNullOrEmpty(NomeCompleto))
+                Response.Cookies.Append("nomeCompleto", NomeCompleto);
+            if (!string.IsNullOrEmpty(FotoUrl))
+                Response.Cookies.Append("fotoUrl", FotoUrl);
 
-            var content = new StringContent(
-                JsonSerializer.Serialize(body),
-                Encoding.UTF8,
-                "application/json");
-
-            var response = await client.PutAsync("/api/perfil", content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                if (!string.IsNullOrEmpty(NomeCompleto))
-                    Response.Cookies.Append("nomeCompleto", NomeCompleto);
-
-                Sucesso = "Perfil atualizado com sucesso!";
-                await CarregarEmail(token);
-            }
-            else
-            {
-                var erroJson = await response.Content.ReadAsStringAsync();
-                Erro = $"Erro ao atualizar: {erroJson}";
-                await CarregarEmail(token);
-            }
-
+            Sucesso = "Perfil atualizado com sucesso!";
+            await CarregarDadosAtuais();
             return Page();
         }
 
-        private async Task CarregarEmail(string token)
+        private async Task CarregarDadosAtuais()
         {
-            try
-            {
-                var client = _clientFactory.CreateClient("AutoMarketAPI");
-                client.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(userId!);
+            if (user == null) return;
 
-                var response = await client.GetAsync("/api/perfil");
-                if (response.IsSuccessStatusCode)
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var perfil = JsonSerializer.Deserialize<JsonElement>(json);
-                    Email = perfil.GetProperty("email").GetString() ?? "";
-
-                    if (string.IsNullOrEmpty(NomeCompleto))
-                        NomeCompleto = perfil.GetProperty("nomeCompleto").GetString() ?? "";
-                    if (string.IsNullOrEmpty(Telefone))
-                        Telefone = perfil.TryGetProperty("telefone", out var tel) ? tel.GetString() : null;
-                    if (string.IsNullOrEmpty(Localizacao))
-                        Localizacao = perfil.TryGetProperty("localizacao", out var loc) ? loc.GetString() : null;
-                    if (string.IsNullOrEmpty(FotoUrl))
-                        FotoUrl = perfil.TryGetProperty("fotoUrl", out var foto) ? foto.GetString() : null;
-                }
-            }
-            catch { }
+            Email = user.Email;
+            if (string.IsNullOrEmpty(NomeCompleto)) NomeCompleto = user.NomeCompleto;
+            if (string.IsNullOrEmpty(Telefone)) Telefone = user.PhoneNumber;
+            if (string.IsNullOrEmpty(Localizacao)) Localizacao = user.Localizacao;
+            if (string.IsNullOrEmpty(FotoUrl)) FotoUrl = user.FotoUrl;
         }
     }
 }
